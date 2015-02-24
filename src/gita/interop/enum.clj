@@ -23,4 +23,5 @@
 
 (extend-protocol protocol/IData
   java.lang.Enum
-  (-to-data [obj] (str obj)))
+  (-to-data [enum] (str enum))
+  (-data-types [_] #{String}))

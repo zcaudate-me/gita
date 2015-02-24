@@ -1,7 +1,8 @@
 (ns gita.protocol)
 
 (defprotocol IData
-  (-to-data [obj]))
+  (-to-data [obj])
+  (-data-types [obj]))
 
 (defmulti -from-data (fn [obj type] type))
 

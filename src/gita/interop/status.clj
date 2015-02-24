@@ -17,4 +17,5 @@
                               (.isEmpty v))
                        m
                        (assoc m k v)))
-                   {})))))
+                   {}))))
+  (-data-types [_] #{java.util.Map}))
