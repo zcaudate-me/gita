@@ -1,12 +1,18 @@
 (ns gita.interop.object-id
-  (:require [gita.protocol :as protocol])
   (:import [org.eclipse.jgit.lib AnyObjectId ObjectId]))
 
-(extend-protocol protocol/IData
-  AnyObjectId
-  (-to-data [id] (.getName id))
-  (-data-types [_] #{String}))
+(defn to-data [id]
+  (.getName id))
 
-(defmethod protocol/-from-data AnyObjectId
-  [^String data _]
+(defn from-data [data _]
   (ObjectId/fromString data))
+
+(def meta-object
+  {:class     ObjectId
+   :types     #{String}
+   :to-data   to-data
+   :from-data from-data})
+
+(defmethod print-method AnyObjectId
+  [v ^java.io.Writer w]
+  (.write w (str "#id::" (to-data v))))

@@ -4,11 +4,6 @@
 
 (def ^:dynamic *current-directory* nil)
 
-(defn name-from-uri
-  "Given a URI to a Git resource, derive the name (for use in cloning to a directory)"
-  [uri]
-  (second (re-find #"/([^/]*)\.git$" uri)))
-
 (defn as-directory [path]
   (if-let [curr-dir (io/as-file path)]
     (and (.isDirectory curr-dir)
@@ -20,9 +15,10 @@
       git-dir
       (recur (.getParent curr-dir)))))
 
-(defn create
-  ([] (create (or *current-directory* (System/getProperty "user.dir"))))
+(defn repository
+  ([] (repository (or *current-directory* (System/getProperty "user.dir"))))
   ([path]
    (if-let [git-dir (root-dir path)]
      (FileRepositoryBuilder/create git-dir)
-     (throw (Exception. (str "The Git repository at '" path "' could not be located."))))))
+     (throw (Exception. (str "The Git repository at '"
+                             path "' could not be located."))))))

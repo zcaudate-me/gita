@@ -1,13 +1,19 @@
 (ns gita.interop.repository
-  (:require [gita.protocol :as protocol])
   (:import org.eclipse.jgit.lib.Repository
            org.eclipse.jgit.internal.storage.file.FileRepository))
 
-(extend-protocol protocol/IData
-  Repository
-  (-to-data [repo]
-    (-> repo (.getDirectory) (.getAbsolutePath)))
-  (-data-types [_] #{String}))
+(defn to-data [repo]
+  (-> repo (.getDirectory) (.getAbsolutePath)))
 
-(defmethod protocol/-from-data Repository
-  [^String path _] (FileRepository. path))
+(defn from-data [path _]
+  (FileRepository. path))
+
+(def meta-object
+  {:class     Repository
+   :types     #{String}
+   :to-data   to-data
+   :from-data from-data})
+
+(defmethod print-method Repository
+  [v ^java.io.Writer w]
+  (.write w (str "#repository::" (to-data v))))
