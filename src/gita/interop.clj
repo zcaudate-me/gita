@@ -12,11 +12,11 @@
 
 (defprotocol IData
   (to-data [obj])
-  (meta-object [obj]))
+  (meta-object [obj key]))
 
 (macros/extend-namespaced
  [IData]
- {meta-object ([_] %/meta-object)}
+ ;;{meta-object ([_] %/meta-object)}
 
  Enum enum
  org.eclipse.jgit.dircache.DirCache dir-cache

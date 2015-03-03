@@ -35,7 +35,8 @@
  => {:directory nil, :bare false, :gitDir nil}
 
  (-> (Git/init)
-     (command-initialize-inputs [:bare true :git-dir ".git"])
+     (command-initialize-inputs [:bare true ;;:git-dir  ".git"
+                                 ])
      (reflect/delegate)
      (->> (into {})))
 
