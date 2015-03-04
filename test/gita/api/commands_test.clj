@@ -1,5 +1,6 @@
 (ns gita.api.commands-test
   (:require [gita.api.commands :refer :all]
+            [gita.interop :as interop]
             [midje.sweet :refer :all]
             [hara.reflect :as reflect]
             [clojure.java.io :as io])
@@ -23,21 +24,34 @@
      :branch #{:create :delete :rename :list}})
 
 
-(fact
- "list options for a particular command"
+(fact "list options for a particular command"
  (keys (command-options (Git/init)))
  => '(:bare :directory :git-dir))
 
-(fact "initialize inputs"
+(fact "list options for a particular command"
+  (->> (command-options (Git/init))
+       (reduce-kv (fn [m k v]
+                    (assoc m k (command-input v)))
+                  {}))
+  => {:git-dir java.io.File, :directory java.io.File, :bare Boolean/TYPE})
+
+(fact "initialize inputs for a particular command "
  (->> (Git/init)
       (reflect/delegate)
       (into {}))
  => {:directory nil, :bare false, :gitDir nil}
 
  (-> (Git/init)
-     (command-initialize-inputs [:bare true ;;:git-dir  ".git"
-                                 ])
+     (command-initialize-inputs [:bare true
+                                 :git-dir  (io/file ".git")])
      (reflect/delegate)
      (->> (into {})))
+ =>  {:directory nil, :bare true, :gitDir (io/file ".git")})
 
- )
+(fact "check if application with coercion works"
+ (let [init-command (Git/init)
+       set-dir  (reflect/query-class init-command [:# "setGitDir"])]
+   (->> (apply-with-coercion set-dir [init-command ".git"])
+        (reflect/delegate)
+        (into {})))
+ => {:directory nil, :bare false, :gitDir (io/file ".git")})

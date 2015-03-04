@@ -3,7 +3,7 @@
   (:import java.io.File))
 
 (defn to-data [file]
-  (.getAbsolutePath file))
+  (.getPath file))
 
 (defn from-data [path _]
   (io/file path))
@@ -16,4 +16,4 @@
 
 (defmethod print-method File
   [v ^java.io.Writer w]
-  (.write w (str "#file::" (to-data v))))
+  (.write w (str "<" (to-data v) ">")))
