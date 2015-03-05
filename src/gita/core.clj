@@ -12,16 +12,25 @@
     (println " " command))
   all-commands)
 
+(defn git-command-help [cmd]
+  (let [opts (reduce-kv (fn [m k res]
+                          (assoc m k (commands/command-input res)))
+                        {} (commands/command-options cmd))]
+    (println "Options are: " opts)
+    opts))
 
 (defn run-command [pair dir]
   (if (vector? pair)
     (let [[ele inputs] pair
           cmd (if (-> ele :modifiers :static)
-                (ele Git)
-                (ele (Git. (repository/repository dir))))
-          cmd (commands/command-initialize-inputs cmd inputs)]
-      (-> (.call cmd)
-          (interop/to-data)))
+                (ele)
+                (ele (Git. (repository/repository dir))))]
+      (if (some #{:? :help} inputs)
+        (git-command-help cmd)
+        (-> cmd
+            (commands/command-initialize-inputs inputs)
+            (.call)
+            (interop/to-data))))
     pair))
 
 (defn git
@@ -48,9 +57,19 @@
            (-> (commands/command all-commands args)
                (run-command dir))))))
 
+
 (comment
   (git)
   (git :cd)
   (git :pwd)
+  (git :init :?)
+  (git :add :?)
+  (git :rm :?)
+  (git :stash :create)
+
+  (git :add :filepattern ["."])
+  (git :remove :help)
+  (git :status)
+  (git "/tmp/gita/init" :status)
   (git "." :status)
   (git :branch :create))
