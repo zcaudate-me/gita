@@ -4,6 +4,7 @@
             [hara.common.string :refer [to-string]]
             [hara.string.case :as case]
             [clojure.string :as string]
+            [gita.api.apply :as apply]
             [gita.interop :as interop])
   (:import org.eclipse.jgit.api.Git))
 
@@ -39,53 +40,6 @@
     (case t
       :single p :multi [p])))
 
-(defn param-arg-match
-  [^Class param-type ^Class arg-type]
-  (cond (nil? arg-type)
-        (-> param-type .isPrimitive not)
-
-        (or (= param-type arg-type)
-            (-> param-type (.isAssignableFrom arg-type)))
-        true
-
-        :else
-        (condp = param-type
-          Integer/TYPE (or (= arg-type Integer)
-                           (= arg-type Long)
-                           (= arg-type Long/TYPE)
-                           (= arg-type Short/TYPE)
-                           (= arg-type Byte/TYPE))
-          Float/TYPE   (or (= arg-type Float)
-                           (= arg-type Double/TYPE))
-          Double/TYPE  (or (= arg-type Double)
-                           (= arg-type Float/TYPE))
-          Long/TYPE    (or (= arg-type Long)
-                           (= arg-type Integer/TYPE)
-                           (= arg-type Short/TYPE)
-                           (= arg-type Byte/TYPE))
-          Character/TYPE   (= arg-type Character)
-          Short/TYPE       (= arg-type Short)
-          Byte/TYPE        (= arg-type Byte)
-          Boolean/TYPE     (= arg-type Boolean)
-          false)))
-
-(defn may-coerce [param arg]
-  (let [targ (type arg)
-        {:keys [types from-data]} (interop/meta-object param)]
-    (cond (param-arg-match param targ) arg
-
-          :else
-          (if (and (-> types empty? not)
-                   (-> from-data nil? not)
-                   (types targ))
-            (from-data arg param)
-            (throw (Exception. (str "Cannot convert value " arg
-                                    " of type " (.getName targ) " to " (.getName param)) ))))))
-
-(defn apply-with-coercion
-  ([{:keys [params] :as ele} args]
-   (apply ele (map may-coerce params args))))
-
 (defn command-initialize-inputs
   [command inputs]
   (let [options (command-options command)]
@@ -101,14 +55,38 @@
                 (case (:type field)
                   :single (let [curr (take pcount more)
                                 nxt  (drop pcount more)]
-                            (recur nxt (apply-with-coercion ele (cons command curr))))
+                            (recur nxt (apply/apply-with-coercion ele (cons command curr))))
                   :multi  (let [[arr & xs] more
                                 arr (if (vector? arr) arr [arr])]
                             (recur xs
                                    (reduce (fn [command entry]
                                              (cond (vector? entry)
-                                                   (apply-with-coercion ele (cons command entry))
+                                                   (apply/apply-with-coercion ele (cons command entry))
 
-                                                   :else (apply-with-coercion ele [command entry])))
+                                                   :else (apply/apply-with-coercion ele [command entry])))
                                            command arr)))))
               (throw (Exception. (str "Option " slug " is not avaliable: " (-> options keys sort)))))))))
+
+
+(defn git-element [keywords]
+  (->> keywords
+       (map to-string)
+       (string/join "-")
+       (case/camel-case)
+       (vector :#)
+       (reflect/query-class Git)))
+
+(defn command [all-commands [input & more]]
+  (if-let [subcommands (get all-commands input)]
+    (cond (empty? subcommands)
+          [(git-element (cons input subcommands)) more]
+
+          (> (count subcommands) 1)
+          (if (get subcommands (first more))
+            [(git-element (cons input [(first more)])) (rest more)]
+            (do (println (str "Options for " input " are: " subcommands))
+                subcommands))
+
+          (= (count subcommands) 1)
+          [(git-element (cons input subcommands)) more])
+    (throw (Exception. (str "Cannot find " input " in the list of Git commands")))))
