@@ -5,7 +5,8 @@
             [hara.string.case :as case]
             [clojure.string :as string]
             [gita.api.apply :as apply]
-            [gita.interop :as interop])
+            [gita.interop :as interop]
+            [gita.interop.enum :as enum])
   (:import org.eclipse.jgit.api.Git))
 
 (defn git-all-commands []
@@ -35,10 +36,21 @@
        (into {})))
 
 (defn command-input [opt]
-  (let [p (-> opt :element :params second)
-        t (:type opt)]
-    (case t
-      :single p :multi [p])))
+  (let [param    (-> opt :element :params second)
+        mobj (interop/meta-object param)
+        out  (cond (= Enum (:class mobj))
+                   (->> param enum/enum-values (map interop/to-data) set)
+
+                   (:from-data mobj)
+                   (first (:types mobj))
+
+                   :else param)]
+    (case (:type opt)
+      :single out
+      :multi [out])))
+
+(comment
+  (interop/meta-object org.eclipse.jgit.submodule.SubmoduleWalk$IgnoreSubmoduleMode))
 
 (defn command-initialize-inputs
   [command inputs]

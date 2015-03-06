@@ -7,10 +7,10 @@
 (def ^:dynamic *dir* nil)
 
 (defn git-help [all-commands]
-  (println "\nSubtasks for git are:\n\n")
-  (doseq [command (-> all-commands keys sort)]
-    (println " " command))
-  all-commands)
+  (let [out (-> all-commands keys sort vec)]
+    (println "\nSubtasks for git are:\n\n")
+    (println out)
+    out))
 
 (defn git-command-help [cmd]
   (let [opts (reduce-kv (fn [m k res]
@@ -19,18 +19,35 @@
     (println "Options are: " opts)
     opts))
 
+(defn wrap-help [f]
+  (fn  [cmd inputs]
+    (if (some #{:? :help} inputs)
+      (git-command-help cmd)
+      (f cmd inputs))))
+
+(defn wrap-result [f]
+  (fn [cmd inputs]
+    (let [res (->> (filter #(not= :& %) inputs)
+                   (f cmd))]
+      (if (some #{:&} inputs)
+        res
+        (interop/to-data res)))))
+
+(defn run-base [cmd inputs]
+  (-> cmd
+      (commands/command-initialize-inputs inputs)
+      (.call)))
+
 (defn run-command [pair dir]
   (if (vector? pair)
     (let [[ele inputs] pair
           cmd (if (-> ele :modifiers :static)
                 (ele)
                 (ele (Git. (repository/repository dir))))]
-      (if (some #{:? :help} inputs)
-        (git-command-help cmd)
-        (-> cmd
-            (commands/command-initialize-inputs inputs)
-            (.call)
-            (interop/to-data))))
+
+      ((-> run-base
+           wrap-result
+           wrap-help) cmd inputs))
     pair))
 
 (defn git
@@ -63,9 +80,42 @@
   (git :cd)
   (git :pwd)
   (git :init :?)
+  ;; => {:git-dir java.lang.String, :directory java.lang.String, :bare boolean}
+
   (git :add :?)
   (git :rm :?)
   (git :stash :create)
+  (git :pwd)
+  "/tmp/gita-example"
+  "/Users/chris/Development/chit/gita"
+
+  (git :init :directory "/tmp/gita-example1")
+  => "/tmp/gita-example/.git"
+
+  (git :cd "/tmp/gita-example")
+  (git :cd "/tmp/gita-example1")
+  (git :status)
+  (iterator-seq (.iterator (git :log)))
+
+  (type (.getAuthor (.next (git :log)))
+
+        (type (.getEncoding (.next (git :log))))
+        sun.nio.cs.UTF_8
+
+        (.getAuthorIdent (.next (git :log))))
+
+
+  (git :add :?)
+  (git :cd)
+  (git :push :remote "git@github.com:zcaudate/gita.git")
+  (git :init :?)
+  (git :status)
+
+
+
+
+
+  (spit "/tmp/gita-example/hello.txt" "hello there")
 
   (git :add :filepattern ["."])
   (git :remove :help)

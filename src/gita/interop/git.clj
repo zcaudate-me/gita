@@ -1,19 +1,24 @@
 (ns gita.interop.git
-  (:require [gita.interop.repository :as repository])
-  (:import org.eclipse.jgit.api.Git))
+  (:require [gita.interop.common :as common])
+  (:import org.eclipse.jgit.api.Git
+           org.eclipse.jgit.lib.Repository))
 
-(defn to-data [git]
-  (-> git (.getRepository) (repository/to-data)))
-
-(defn from-data [path _]
-  (Git. (repository/from-data path nil)))
-
-(def meta-object
+(defmethod common/-meta-object Git
+  [type]
   {:class     Git
    :types     #{String}
-   :to-data   to-data
-   :from-data from-data})
+   :to-data   common/-to-data
+   :from-data common/-from-data})
+
+(extend-protocol common/IData
+  Git
+  (-to-data [git]
+    (-> git (.getRepository) common/-to-data)))
+
+(defmethod common/-from-data Git
+  [path _]
+  (Git. (common/-from-data path Repository)))
 
 (defmethod print-method Git
   [v ^java.io.Writer w]
-  (.write w (str "#git::" (to-data v))))
+  (.write w (str "#git::" (common/-to-data v))))

@@ -1,19 +1,24 @@
 (ns gita.interop.file
-  (:require [clojure.java.io :as io])
+  (:require [gita.interop.common :as common]
+            [clojure.java.io :as io])
   (:import java.io.File))
 
-(defn to-data [file]
-  (.getPath file))
-
-(defn from-data [path _]
-  (io/file path))
-
-(def meta-object
+(defmethod common/-meta-object File
+  [type]
   {:class     File
    :types     #{String}
-   :to-data   to-data
-   :from-data from-data})
+   :to-data   common/-to-data
+   :from-data common/-from-data})
+
+(extend-protocol common/IData
+  File
+  (-to-data [file]
+    (.getPath file)))
+
+(defmethod common/-from-data File
+  [path _]
+  (io/file path))
 
 (defmethod print-method File
   [v ^java.io.Writer w]
-  (.write w (str "<" (to-data v) ">")))
+  (.write w (str "<" (common/-to-data v) ">")))
