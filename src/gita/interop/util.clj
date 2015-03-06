@@ -15,13 +15,14 @@
                     :else name)]
     (case/spear-case nname)))
 
-(defn object-methods [obj]
-  (if-let [t (type obj)]
-    (->> (reflect/query-class t [#"^(is)|(get)" [t]])
-         (reduce (fn [m ele]
-                   (assoc m (-> ele :name java->clojure keyword) ele))
-                 {}))
-    {}))
+(defn object-methods
+  ([obj]
+   (if obj
+     (->> (reflect/query-instance obj [#"^(is)|(get)" 1 :instance])
+          (reduce (fn [m ele]
+                    (assoc m (-> ele :name java->clojure keyword) ele))
+                  {}))
+     {})))
 
 (defn object-apply [methods obj f]
   (reduce-kv (fn [m k ele]

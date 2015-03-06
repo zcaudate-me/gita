@@ -23,7 +23,7 @@ Add to project.clj dependencies:
 
 There is only one function: `git`. It's usage is very much like how the command-line version is used:
 
-```
+```clojure
 (use 'gita.core)
 
 ;; This should feel somewhat familiar:
@@ -79,8 +79,9 @@ There is only one function: `git`. It's usage is very much like how the command-
 ;  Options are: {:git-dir java.lang.String, :directory java.lang.String, :bare boolean}  
 ;
 
-;; Lets take a look at what other parameters we use with `:status`. To be perfectly honest, 
-;; I'm not really sure what the options do, but here they are:
+;; Lets take a look at what other parameters we use with `:status`. 
+;; To be perfectly honest, I'm not really sure what the options do, 
+;; but here they are:
 (git :status :?)
 ;
 ;  Options are:

@@ -14,7 +14,9 @@
        ~cls
        (-to-data [entry#]
          (-> (util/object-methods entry#)
-             (dissoc ~@(:exclude opts))
+             (dissoc ~@(:exclude opts) :class)
+             ~@(if (:select opts)
+                 `(select-keys ~(or (:select opts) [])))
              (util/object-apply entry# common/to-data))))
 
      (defmethod print-method ~cls
@@ -28,11 +30,15 @@
 
 (extend-maplike
  org.eclipse.jgit.dircache.DirCacheEntry     {:slug "e" :exclude [:raw-mode :raw-path]}
+ org.eclipse.jgit.api.ApplyResult            {:slug "apply"}
+ org.eclipse.jgit.api.CheckoutResult         {:slug "checkout"}
+ org.eclipse.jgit.api.CherryPickResult       {:slug "cherrypick"}
  org.eclipse.jgit.api.MergeResult            {:slug "merge"}
  org.eclipse.jgit.api.RebaseResult           {:slug "rebase"}
  org.eclipse.jgit.api.PullResult             {:slug "pull"}
+ org.eclipse.jgit.lib.ReflogEntry            {:slug "entry"}
+ org.eclipse.jgit.lib.Ref                    {:slug "ref" :exclude [:leaf :target]}
  org.eclipse.jgit.transport.OperationResult  {:slug "result"}
  org.eclipse.jgit.revwalk.RevCommit          {:slug "commit"
-                                              :exclude [:parents :parent-count :raw-buffer
-                                                        :short-message :commiter-ident :encoding]}
+                                              :select [:commit-time :name  :author-ident :full-message]}
  org.eclipse.jgit.lib.PersonIdent            {:slug "person" :exclude [:time-zone]})

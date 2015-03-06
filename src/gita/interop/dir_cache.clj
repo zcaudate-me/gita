@@ -18,7 +18,7 @@
   DirCache
   (-to-data [dir-cache]
     (let [count (.getEntryCount dir-cache)]
-      (->> (map (fn [i] (-> (.getEntry dir-cache i) common/-to-data process-entry))
+      (->> (map (fn [i] (-> (.getEntry dir-cache i) common/to-data process-entry))
                 (range count))
            (into {})))))
 

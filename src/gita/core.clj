@@ -116,6 +116,10 @@
   (git :init :?)
   (git :status)
 
+  (def res (first (git :branch :list)))
+  (type (first (git :branch :list))
+        )
+
 
 
 

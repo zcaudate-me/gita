@@ -16,8 +16,12 @@
 (extend-protocol IData
   nil
   (-to-data [obj] obj)
+
   Object
   (-to-data [obj] obj)
+
+  java.lang.Iterable
+  (-to-data [obj] (mapv to-data obj))
 
   java.util.Iterator
   (-to-data [obj] (->> obj iterator-seq (mapv to-data))))
