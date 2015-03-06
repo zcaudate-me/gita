@@ -8,7 +8,7 @@
                        `(~arglist ~(cons ns-method arglist)))
                      arglists))))
 
-(defn namespaced-protocol [pvar pairs]
+(defn namespaced-protocol [^clojure.lang.Var pvar pairs]
   (let [sigs  (-> pvar deref :sigs vals)
         pairs (partition 2 pairs)]
     `(extend-protocol ~(symbol (str (.ns pvar) "/" (.sym pvar)))

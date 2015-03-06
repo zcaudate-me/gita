@@ -16,7 +16,7 @@
          (-> (util/object-methods entry#)
              (dissoc ~@(:exclude opts) :class)
              ~@(if (:select opts)
-                 `(select-keys ~(or (:select opts) [])))
+                 `((select-keys ~(or (:select opts) []))))
              (util/object-apply entry# common/to-data))))
 
      (defmethod print-method ~cls
@@ -40,5 +40,5 @@
  org.eclipse.jgit.lib.Ref                    {:slug "ref" :exclude [:leaf :target]}
  org.eclipse.jgit.transport.OperationResult  {:slug "result"}
  org.eclipse.jgit.revwalk.RevCommit          {:slug "commit"
-                                              :select [:commit-time :name  :author-ident :full-message]}
+                                              :select [:commit-time :name :author-ident :full-message]}
  org.eclipse.jgit.lib.PersonIdent            {:slug "person" :exclude [:time-zone]})

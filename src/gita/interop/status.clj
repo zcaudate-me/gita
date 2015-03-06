@@ -20,7 +20,7 @@
            (reduce (fn [m [k v]]
                      (if (and (or (instance? java.util.Collection v)
                                   (instance? java.util.Map v))
-                              (.isEmpty v))
+                              (empty? v))
                        m
                        (assoc m k v)))
                    {})))))

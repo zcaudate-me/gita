@@ -46,7 +46,7 @@
 
  org.eclipse.jgit.api.Git
  {:slug   "git"
-  :to     (fn [repo]
+  :to     (fn [^org.eclipse.jgit.api.Git repo]
             (-> repo (.getRepository) common/-to-data))
   :from   (fn [path _]
             (-> path
@@ -61,7 +61,7 @@
 
  org.eclipse.jgit.lib.Repository
  {:slug   "repository"
-  :to     (fn [repo]
+  :to     (fn [^org.eclipse.jgit.lib.Repository repo]
             (-> repo (.getDirectory) common/-to-data))
-  :from   (fn [path _]
+  :from   (fn [^String path _]
             (org.eclipse.jgit.internal.storage.file.FileRepository. path))})

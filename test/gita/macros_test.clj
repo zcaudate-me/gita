@@ -32,14 +32,14 @@
                 ([obj more] (string/to-data obj more)))))
 
 
-(fact "generates defmethods from namespace"
+#_(fact "generates defmethods from namespace"
  (macroexpand-1
   '(extend-namespaced-multi
-   (from-data [data type])
+     (from-data [data type])
 
-   Enum enum
-   org.eclipse.jgit.lib.ObjectId object-id
-   org.eclipse.jgit.lib.Repository repository) )
+     Enum enum
+     org.eclipse.jgit.lib.ObjectId object-id
+     org.eclipse.jgit.lib.Repository repository))
  => '[(clojure.core/defmethod from-data Enum
         [data type] (enum/from-data data type))
       (clojure.core/defmethod from-data org.eclipse.jgit.lib.ObjectId

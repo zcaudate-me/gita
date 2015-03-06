@@ -72,27 +72,57 @@ There is only one function: `git`. It's usage is very much like how the command-
 
 #### getting help - :? and :help
 
+We can get help with a subcommand at anytime by using `:?` or `:help` after the first keyword:
+
 ```clojure
 ;; Lets take a look at a subcommand:
 (git :init :?) ;; using `:help` does the same thing
-;
-;  Options are: {:git-dir java.lang.String, :directory java.lang.String, :bare boolean}  
-;
-
-;; Lets take a look at what other parameters we use with `:status`. 
-;; To be perfectly honest, I'm not really sure what the options do, 
-;; but here they are:
-(git :status :?)
-;
-;  Options are:
-;  {:working-tree-it   org.eclipse.jgit.treewalk.WorkingTreeIterator, 
-;   :progress-monitor  org.eclipse.jgit.lib.ProgressMonitor, 
-;   :ignore-submodules #{"NONE" "UNTRACKED" "DIRTY" "ALL"}, 
-;   :path              [java.lang.String]}
+=> {:git-dir java.lang.String, 
+    :directory java.lang.String, 
+    :bare boolean}  
 ```
 
+Lets take a look at the `:status` subcommand:
+
+```clojure
+(git :status :?)
+=> {:working-tree-it   org.eclipse.jgit.treewalk.WorkingTreeIterator, 
+    :progress-monitor  org.eclipse.jgit.lib.ProgressMonitor, 
+    :ignore-submodules #{"NONE" "UNTRACKED" "DIRTY" "ALL"}, 
+    :path              [java.lang.String]}
+```
+
+We can decode the 
 
 #### - :add and :commit
+
+Using help, we can have a look at what options `:add` and `:commit` take:
+
+```clojure
+(git :add :?)
+=> {:working-tree-iterator org.eclipse.jgit.treewalk.WorkingTreeIterator,
+    :update boolean,
+    :filepattern [java.lang.String]}
+
+(git :commit :?)
+=> {:reflog-comment java.lang.String,
+    :only java.lang.String,
+    :message java.lang.String,
+    :insert-change-id boolean,
+    :committer java.lang.String,
+    :author java.lang.String,
+    :amend boolean,
+    :all boolean}
+
+```
+
+Lets do an example, assuming that the `/tmp/gita-example` repository has been created:
+
+```clojure
+(spit "/tmp/gita-example/hello.txt" "hello there")
+(spit "/tmp/gita-example/hello.note" "hello there")
+(git :add :filepattern [".note"])
+```
 
 
 ## License

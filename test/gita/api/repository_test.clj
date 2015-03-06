@@ -4,10 +4,11 @@
             [gita.api.repository :refer :all])
   (:import org.eclipse.jgit.api.Git))
 
+(comment
+  (defn git-init [dir]
+    (-> (Git/init)
+        (.setDirectory dir)
+        (.call)))
 
-(defn git-init [dir]
-  (-> (Git/init)
-      (.setDirectory dir)
-      (.call)))
-
-(repository "/tmp/git/repo-test")
+  (repository "/tmp/git/repo-test")
+)

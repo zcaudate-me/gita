@@ -4,8 +4,9 @@
 
 (def ^:dynamic *current-directory* nil)
 
-(defn as-directory [path]
-  (if-let [curr-dir (io/as-file path)]
+(defn as-directory 
+  ^java.io.File [path]
+  (if-let [^java.io.File curr-dir (io/as-file path)]
     (and (.isDirectory curr-dir)
          curr-dir)))
 

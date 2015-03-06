@@ -12,7 +12,7 @@
 (defn git-all-commands []
   (->> (reflect/query-class Git [:name :type])
        (map (fn [m] (assoc m :command (to-string (:type m)))))
-       (filter (fn [m] (.endsWith (:command m) "Command")))
+       (filter (fn [m] (.endsWith ^String (:command m) "Command")))
        (map (fn [m] (-> m :name (case/spear-case) (string/split #"-") (->> (map keyword)))))
        (reduce (fn [m [root sub]]
                  (if sub

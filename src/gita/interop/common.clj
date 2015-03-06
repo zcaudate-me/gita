@@ -6,7 +6,7 @@
 (defn to-data [obj]
   (cond (nil? obj) nil
 
-        (.isArray (type obj))
+        (.isArray ^Class (type obj))
         (->> (seq obj)
              (mapv to-data))
 

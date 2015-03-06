@@ -4,7 +4,7 @@
             [gita.interop :as interop])
   (:import org.eclipse.jgit.api.Git))
 
-(def ^:dynamic *dir* nil)
+(defonce ^:dynamic *dir* nil)
 
 (defn git-help [all-commands]
   (let [out (-> all-commands keys sort vec)]
@@ -34,8 +34,7 @@
         (interop/to-data res)))))
 
 (defn run-base [cmd inputs]
-  (-> cmd
-      (commands/command-initialize-inputs inputs)
+  (-> ^java.util.concurrent.Callable (commands/command-initialize-inputs cmd inputs)
       (.call)))
 
 (defn run-command [pair dir]
@@ -84,17 +83,38 @@
 
   (git :add :?)
   (git :rm :?)
-  (git :stash :create)
+  (def res (git :stash :create))
+  (def author (.getAuthorIdent res))
+  (type res)
+  () (util/object-methods res)
+
+
   (git :pwd)
   "/tmp/gita-example"
   "/Users/chris/Development/chit/gita"
 
-  (git :init :directory "/tmp/gita-example")
-  => "/tmp/gita-example/.git"
 
-  (git :cd "/tmp/gita-example")
+  => "/tmp/gita-example/.git"
+  (do (git :init :directory "/tmp/gita-example")
+      (git :cd "/tmp/gita-example")
+      (spit "/tmp/gita-example/hello.txt" "hello there")
+      (git :add :filepattern ["."])
+      (git :commit :message (str (rand-int 1000) " - basic commit"))
+      (spit "/tmp/gita-example/hello.txt" "hello world")
+      (git :stash :create)
+      (spit "/tmp/gita-example/hello.txt" "hello foo")
+      (git :stash :create))
+
+  (git :stash :list)
+  (count (git :log))
+
+
   (git :cd "/tmp/gita-example1")
+
+  (spit "/tmp/gita-example/hello.note" "hello there")
+  (spit "/tmp/gita-example/hello.txt" "hello there")
   (git :status)
+  (git :add :filepattern ["."])
   (iterator-seq (.iterator (git :log)))
 
   (type (.getAuthor (.next (git :log)))
@@ -116,20 +136,19 @@
   (git :init :?)
   (git :status)
 
-  (def res (first (git :branch :list)))
-  (type (first (git :branch :list))
-        )
 
 
 
 
 
   (spit "/tmp/gita-example/hello.txt" "hello there")
-
   (git :add :filepattern ["."])
+  (git :commit :message "basic commit" :&)
   (git :rm :help)
   (git :status)
-  (git :commit :message "basic commit")
+  (def res )
+  (util/object-methods res)
+
   (git "/tmp/gita/init" :status)
   (git "." :status)
   (git :branch :create))

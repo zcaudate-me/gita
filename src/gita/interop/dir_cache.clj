@@ -16,9 +16,9 @@
 
 (extend-protocol common/IData
   DirCache
-  (-to-data [dir-cache]
+  (-to-data [^DirCache dir-cache]
     (let [count (.getEntryCount dir-cache)]
-      (->> (map (fn [i] (-> (.getEntry dir-cache i) common/to-data process-entry))
+      (->> (map (fn [^Long i] (-> (.getEntry dir-cache i) common/to-data process-entry))
                 (range count))
            (into {})))))
 

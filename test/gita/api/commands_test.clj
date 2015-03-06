@@ -1,5 +1,6 @@
 (ns gita.api.commands-test
   (:require [gita.api.commands :refer :all]
+            [gita.api.apply :as apply]
             [gita.interop :as interop]
             [midje.sweet :refer :all]
             [hara.reflect :as reflect]
@@ -33,7 +34,7 @@
        (reduce-kv (fn [m k v]
                     (assoc m k (command-input v)))
                   {}))
-  => {:git-dir java.io.File, :directory java.io.File, :bare Boolean/TYPE})
+  => {:git-dir String, :directory String, :bare Boolean/TYPE})
 
 (fact "initialize inputs for a particular command "
  (->> (Git/init)
@@ -51,7 +52,7 @@
 (fact "check if application with coercion works"
  (let [init-command (Git/init)
        set-dir  (reflect/query-class init-command [:# "setGitDir"])]
-   (->> (apply-with-coercion set-dir [init-command ".git"])
+   (->> (apply/apply-with-coercion set-dir [init-command ".git"])
         (reflect/delegate)
         (into {})))
  => {:directory nil, :bare false, :gitDir (io/file ".git")})
