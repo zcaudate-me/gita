@@ -26,7 +26,7 @@
     [enum] (str enum)))
 
 (defmethod common/-from-data Enum
-  [ data type]
+  [data type]
   (if-let [field (reflect/query-class type [data :#])]
     (field type)
     (throw (Exception. (str "Options for " (.getName type) " are: "

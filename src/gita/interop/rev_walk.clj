@@ -11,7 +11,7 @@
 (extend-protocol common/IData
   RevWalk
   (-to-data [walk]
-    (->> walk (.iterator) iterator-seq (map common/-to-data) vec)))
+    (->> walk (.iterator) common/to-data)))
 
 (defmethod print-method RevWalk
   [v ^java.io.Writer w]

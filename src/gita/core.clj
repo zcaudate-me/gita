@@ -89,7 +89,7 @@
   "/tmp/gita-example"
   "/Users/chris/Development/chit/gita"
 
-  (git :init :directory "/tmp/gita-example1")
+  (git :init :directory "/tmp/gita-example")
   => "/tmp/gita-example/.git"
 
   (git :cd "/tmp/gita-example")
@@ -101,6 +101,7 @@
 
         (type (.getEncoding (.next (git :log))))
         sun.nio.cs.UTF_8
+        (-> (git :log) (.iterator) (iterator-seq))
 
         (.getAuthorIdent (.next (git :log))))
 
@@ -108,6 +109,10 @@
   (git :add :?)
   (git :cd)
   (git :push :remote "git@github.com:zcaudate/gita.git")
+  (def res (git :pull :&))
+
+  (interop/to-data res)
+
   (git :init :?)
   (git :status)
 
@@ -118,8 +123,9 @@
   (spit "/tmp/gita-example/hello.txt" "hello there")
 
   (git :add :filepattern ["."])
-  (git :remove :help)
+  (git :rm :help)
   (git :status)
+  (git :commit :message "basic commit")
   (git "/tmp/gita/init" :status)
   (git "." :status)
   (git :branch :create))

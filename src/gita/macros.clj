@@ -27,8 +27,3 @@
 (defn namespaced-defmethod [name args result namespace]
   `(defmethod ~name ~result ~args
      ~(cons (symbol (str namespace "/" name)) args)))
-
-(defmacro extend-namespaced-multi
-  [[name args] & pairs]
-  (mapv #(apply namespaced-defmethod name args %)
-        (partition 2 pairs)))
