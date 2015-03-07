@@ -24,11 +24,6 @@
      :tag #{:delete :list},
      :branch #{:create :delete :rename :list}})
 
-
-(fact "list options for a particular command"
- (keys (command-options (Git/init)))
- => '(:bare :directory :git-dir))
-
 (fact "list options for a particular command"
   (->> (command-options (Git/init))
        (reduce-kv (fn [m k v]
