@@ -182,7 +182,7 @@ Feel free to use your shell to browse to `/tmp/gita-example` and run `git status
 
 Oops.. I made an error in the status message. The file should be in lowercase. We can fix that:
 
-```
+```clojure
 (git :commit :message "Added `hello.txt`" :amend true)
 => {:commit-time 1425683376,
     :name "f21fe52cdc3511918b7d52e43f909dbe3c380159",
@@ -195,7 +195,7 @@ Oops.. I made an error in the status message. The file should be in lowercase. W
 
 Now lets add all the files and commit, and check that we indeed have two commits: 
 
-```
+```clojure
 (git :add :filepattern ["."])
 => {"again.txt" #{:merged},
     "hello.txt" #{:merged},
@@ -282,7 +282,7 @@ Using `:list` the current branches that are avaliable:
 
 The options that come with the :branch :create subcommand are:
 
-```
+```clojure
 (git :branch :create :?)
 => {:upstream-mode #{"SET_UPSTREAM" "NOTRACK" "TRACK"}
     :start-point java.lang.String
@@ -292,7 +292,7 @@ The options that come with the :branch :create subcommand are:
 
 We can create a new branch, we name this "tito"
 
-```
+```clojure
 (git :branch :create :name "tito")
 => {:object-id "9fb08f2b6d10ae1ec8cf15eb81ac56edd504160f"
     :name "refs/heads/tito"
