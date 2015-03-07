@@ -29,17 +29,19 @@
                   classes)))
 
 (extend-maplike
- org.eclipse.jgit.dircache.DirCacheEntry     {:slug "e" :exclude [:raw-mode :raw-path]}
- org.eclipse.jgit.api.ApplyResult            {:slug "apply"}
- org.eclipse.jgit.api.CheckoutResult         {:slug "checkout"}
- org.eclipse.jgit.api.CherryPickResult       {:slug "cherrypick"}
- org.eclipse.jgit.api.MergeResult            {:slug "merge"}
- org.eclipse.jgit.api.RebaseResult           {:slug "rebase"}
- org.eclipse.jgit.api.PullResult             {:slug "pull"}
- org.eclipse.jgit.lib.ReflogEntry            {:slug "entry"}
- org.eclipse.jgit.lib.Ref                    {:slug "ref" :exclude [:leaf :target]}
- org.eclipse.jgit.diff.DiffEntry             {:slug "entry"}
- org.eclipse.jgit.transport.OperationResult  {:slug "result"}
- org.eclipse.jgit.revwalk.RevCommit          {:slug "commit"
-                                              :select [:commit-time :name :author-ident :full-message]}
- org.eclipse.jgit.lib.PersonIdent            {:slug "person" :exclude [:time-zone]})
+ org.eclipse.jgit.dircache.DirCacheEntry      {:slug "e" :exclude [:raw-mode :raw-path]}
+ org.eclipse.jgit.api.ApplyResult             {:slug "apply"}
+ org.eclipse.jgit.api.CheckoutResult          {:slug "checkout"}
+ org.eclipse.jgit.api.CherryPickResult        {:slug "cherrypick"}
+ org.eclipse.jgit.api.MergeResult             {:slug "merge"}
+ org.eclipse.jgit.api.RebaseResult            {:slug "rebase"}
+ org.eclipse.jgit.api.PullResult              {:slug "pull"}
+ org.eclipse.jgit.lib.ReflogEntry             {:slug "entry"}
+ org.eclipse.jgit.lib.Ref                     {:slug "ref" :exclude [:leaf :target]}
+ org.eclipse.jgit.diff.DiffEntry              {:slug "entry"}
+ org.eclipse.jgit.transport.OperationResult   {:slug "result"}
+ org.eclipse.jgit.revwalk.RevCommit           {:slug "commit"
+                                               :select [:commit-time :name :author-ident :full-message]}
+ org.eclipse.jgit.lib.PersonIdent             {:slug "person" :exclude [:time-zone]}
+ org.eclipse.jgit.transport.RemoteRefUpdate   {:slug "remote" :exclude [:tracking-ref-update]}
+ org.eclipse.jgit.transport.TrackingRefUpdate {:slug "track"})

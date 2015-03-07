@@ -2,16 +2,16 @@
 
 [![Build Status](https://travis-ci.org/zcaudate/gita.png?branch=master)](https://travis-ci.org/zcaudate/gita)
 
-the introspective jgit wrapper
+the introspective [jgit](https://eclipse.org/jgit/) wrapper
  
 ## Overview
 
-`gita` is a wrapper around the popular [jgit](https://eclipse.org/jgit/) project. An alternative library is [clj-jgit](https://github.com/clj-jgit/clj-jgit) However, due to the enormous amount of functionality around [git](http://www.git.org), it is very difficult to manually write a wrapper around the entire [jgit](https://eclipse.org/jgit/) suite. So The novelty of [gita](https://www.github.com/zcaudate/gita) is that it uses reflection provided by [hara.reflect](https://www.github.com/zcaudate/hara) to generate the wrapper interface in such a way that the entire functionality of the main `org.eclipse.jgit.api.Git` class is accessible and usable in a clojure compatible convention.
+`gita` is a wrapper around the popular [jgit](https://eclipse.org/jgit/) project. An alternative library is [clj-jgit](https://github.com/clj-jgit/clj-jgit) and it does have alot more higher-level functions at the moment. However, due to the enormous amount of functionality around [git](http://www.git.org), it is very difficult to manually write a wrapper around the entire suite. So The novelty of [gita](https://www.github.com/zcaudate/gita) is that it uses reflection provided by [hara.reflect](https://www.github.com/zcaudate/hara) to generate the wrapper interface in such a way that the entire functionality of the main `org.eclipse.jgit.api.Git` class is accessible and usable in a clojure compatible convention.
 
 The aims of this project are:
 
   - to have a git library for clojure that is simple and intuitive to use
-  - to use less than 750 lines of code (currently 582 total)
+  - to use less than 1000 lines of code (currently 582 total)
   - to use reflection, allowing for:
     - self-directed exploration of the library
     - auto-generation of the clojure interface
@@ -363,8 +363,54 @@ PHEW. Lets keep going
 
 #### working remotely - :pull, :push
 
+I'm going to cheat and just use this on the gita repo, for effects only:
 
-#### advanced - , :stash, :diff, :rebase 
+```clojure
+(git :cd) ;; Goes to my default dir (the gita directory)
+
+(git :pull) 
+=> {:fetched-from "origin",
+    :fetch-result {:advertised-refs [...], :messages "", :tracking-ref-updates [],
+                  :uri "git@github.com:zcaudate/gita.git"}
+    :merge-result {:base {...},
+                  :checkout-conflicts nil, :conflicts nil, :failing-paths nil,
+                  :merge-status "Already-up-to-date",
+                  :merged-commits [...],
+                  :new-head {...}},
+    :rebase-result nil,
+    :successful? true}
+
+(git :push)
+=> [{:advertised-refs [{:name "refs/heads/master",
+                          :object-id "bf4d5affc89922117fba057457930e23e37439a3",
+                          :peeled-object-id nil,
+                          :storage "NETWORK", :peeled? true, :symbolic? false}],
+       :messages "",
+       :remote-updates [{:src-ref "refs/heads/master",
+                         :expected-old-object-id nil,
+                         :remote-name "refs/heads/master",
+                         :status "UP_TO_DATE",
+                         :expecting-old-object-id? false,
+                         :new-object-id "bf4d5affc89922117fba057457930e23e37439a3",
+                         :delete? false, :force-update? false,
+                         :fast-forward? false, :message nil}],
+       :tracking-ref-updates [{:local-name "refs/heads/master",
+                               :new-object-id "bf4d5affc89922117fba057457930e23e37439a3",
+                               :old-object-id "bf4d5affc89922117fba057457930e23e37439a3",
+                               :remote-name "refs/heads/master",
+                               :result "NO_CHANGE"}],
+       :uri "git@github.com:zcaudate/gita.git"}]
+```
+
+
+#### alot more - please help!
+
+I'm a git newbie compared to most and so I don't really know how to use a lot of commands properly or how they behave in the context of jgit. Some commands that can do with some TLC/use cases/pull requests are:
+  
+    :apply, :stash, :archive, :rebase, :notes, :cherry, 
+    :blame, :revert, :tag, :clean, :ls, :submodule
+
+So please have a play!
 
 ## License
 

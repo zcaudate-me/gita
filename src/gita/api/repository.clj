@@ -4,7 +4,7 @@
 
 (def ^:dynamic *current-directory* nil)
 
-(defn as-directory 
+(defn as-directory
   ^java.io.File [path]
   (if-let [^java.io.File curr-dir (io/as-file path)]
     (and (.isDirectory curr-dir)
@@ -20,6 +20,10 @@
   ([] (repository (or *current-directory* (System/getProperty "user.dir"))))
   ([path]
    (if-let [git-dir (root-dir path)]
-     (FileRepositoryBuilder/create git-dir)
+     (let [repo (FileRepositoryBuilder/create git-dir)
+           config (doto (.getConfig repo)
+                    (.setString "remote", "origin", "fetch", "+refs/*:refs/*")
+                    (.save))]
+       repo)
      (throw (Exception. (str "The Git repository at '"
                              path "' could not be located."))))))

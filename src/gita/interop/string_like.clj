@@ -70,4 +70,10 @@
   :to     (fn [^org.eclipse.jgit.lib.Repository repo]
             (-> repo (.getDirectory) common/-to-data))
   :from   (fn [^String path _]
-            (org.eclipse.jgit.internal.storage.file.FileRepository. path))})
+            (org.eclipse.jgit.internal.storage.file.FileRepository. path))}
+
+ org.eclipse.jgit.transport.URIish
+ {:slug   "url"
+  :to     str
+  :from   (fn [^String path _]
+            (org.eclipse.jgit.transport.URIish. path))})
