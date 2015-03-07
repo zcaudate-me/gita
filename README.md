@@ -2,8 +2,10 @@
 
 [![Build Status](https://travis-ci.org/zcaudate/gita.png?branch=master)](https://travis-ci.org/zcaudate/gita)
 
-    'No one who does good work will ever come to a bad end, either here or in the world to come'
-            - Bhagavad Gita
+    'No one who does good work will ever come to a
+     bad end, either here or in the world to come'
+     
+      - Bhagavad Gita
 
 the introspective [jgit](https://eclipse.org/jgit/) wrapper
   
