@@ -3,7 +3,8 @@
             [gita.interop
              [common :as common]
              map-like string-like
-             dir-cache enum rev-walk status]))
+             dir-cache enum file-snapshot
+             rev-walk status]))
 
 (defn meta-object [cls]
   (common/-meta-object cls))

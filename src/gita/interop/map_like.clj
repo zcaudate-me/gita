@@ -38,6 +38,7 @@
  org.eclipse.jgit.api.PullResult             {:slug "pull"}
  org.eclipse.jgit.lib.ReflogEntry            {:slug "entry"}
  org.eclipse.jgit.lib.Ref                    {:slug "ref" :exclude [:leaf :target]}
+ org.eclipse.jgit.diff.DiffEntry             {:slug "entry"}
  org.eclipse.jgit.transport.OperationResult  {:slug "result"}
  org.eclipse.jgit.revwalk.RevCommit          {:slug "commit"
                                               :select [:commit-time :name :author-ident :full-message]}

@@ -33,7 +33,12 @@
                 [op-key {:type  op-type
                          :key   op-key
                          :element ele}])))
-       (into {})))
+       (reduce (fn [m [k val]]
+                 (if (or (not (get m k))
+                         (-> val :params second interop/meta-object :from-data))
+                   (assoc m k val)
+                   m))
+               {})))
 
 (defn command-input [opt]
   (let [param    (-> opt :element :params second)
@@ -48,9 +53,6 @@
     (case (:type opt)
       :single out
       :multi [out])))
-
-(comment
-  (interop/meta-object org.eclipse.jgit.submodule.SubmoduleWalk$IgnoreSubmoduleMode))
 
 (defn command-initialize-inputs
   [command inputs]

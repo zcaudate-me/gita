@@ -2,14 +2,22 @@
 
 [![Build Status](https://travis-ci.org/zcaudate/gita.png?branch=master)](https://travis-ci.org/zcaudate/gita)
 
-Git on Song
-
+the introspective jgit wrapper
+ 
 ## Overview
 
-`gita` is a clojure wrapper around the popular [jgit](https://eclipse.org/jgit/) project. The aim of the project is to:
-  - make a git library that is simple and intuitive to use
-  - generate the clojure interface through reflection
-  - learn more about git in the process
+`gita` is a wrapper around the popular [jgit](https://eclipse.org/jgit/) project. An alternative library is [clj-jgit](https://github.com/clj-jgit/clj-jgit) However, due to the enormous amount of functionality around [git](http://www.git.org), it is very difficult to manually write a wrapper around the entire [jgit](https://eclipse.org/jgit/) suite. So The novelty of [gita](https://www.github.com/zcaudate/gita) is that it uses reflection provided by [hara.reflect](https://www.github.com/zcaudate/hara) to generate the wrapper interface in such a way that the entire functionality of the main `org.eclipse.jgit.api.Git` class is accessible and usable in a clojure compatible convention.
+
+The aims of this project are:
+
+  - to have a git library for clojure that is simple and intuitive to use
+  - to use less than 750 lines of code (currently 582 total)
+  - to use reflection, allowing for:
+    - self-directed exploration of the library
+    - auto-generation of the clojure interface
+    - auto-coercion of string-like inputs (ids and files)
+    - auto-conversion of outputs to simple clojure data
+  - to learn more about git in the process
 
 ## Installation
 
@@ -70,16 +78,23 @@ There is only one function: `git`. It's usage is very much like how the command-
 => {:clean? false, :uncommitted-changes? false, :untracked #{"hello.txt"}}
 ```
 
-#### getting help - :? and :help
+#### exploration and self-help - :? and :help
 
-We can get help with a subcommand at anytime by using `:?` or `:help` after the first keyword:
+We can get help with a subcommand at anytime by using `:?` or `:help` after the first keyword. This will return a map with keys and the type of argument that it takes:
 
 ```clojure
-;; Lets take a look at a subcommand:
+;; Lets take a look at the `:init` subcommand:
 (git :init :?) ;; using `:help` does the same thing
 => {:git-dir java.lang.String, 
     :directory java.lang.String, 
     :bare boolean}  
+```
+
+So we can use it in the following way to create a bare git repository:
+
+```clojure
+(git :init :directory "/tmp/new-bare-repo" :bare true)
+=> "/tmp/new-bare-repo"
 ```
 
 Lets take a look at the `:status` subcommand:
@@ -92,11 +107,16 @@ Lets take a look at the `:status` subcommand:
     :path              [java.lang.String]}
 ```
 
-We can decode the 
+We can decode the representation of the options
 
-#### - :add and :commit
+- for `:working-tree-it` an input of type `org.eclipse.jgit.treewalk.WorkingTreeIterator` is needed
+- for `:progress-monitor` an input of type `org.eclipse.jgit.lib.ProgressMonitor` is needed
+- for `:ignore-submodules` an input of the following options #{"NONE" "UNTRACKED" "DIRTY" "ALL"} is needed
+- for `:path` a string input or a vector of strings is needed
 
-Using help, we can have a look at what options `:add` and `:commit` take:
+#### working locally - :add, :commit, :log and :rm
+
+So we continue to add on our basic vocabulary for our git workflow. Using help, we can have a look at what options `:add` and `:commit` take:
 
 ```clojure
 (git :add :?)
@@ -113,17 +133,238 @@ Using help, we can have a look at what options `:add` and `:commit` take:
     :author java.lang.String,
     :amend boolean,
     :all boolean}
-
 ```
 
-Lets do an example, assuming that the `/tmp/gita-example` repository has been created:
+Lets do an example, with the `/tmp/gita-example` repository, lets 
 
 ```clojure
-(spit "/tmp/gita-example/hello.txt" "hello there")
-(spit "/tmp/gita-example/hello.note" "hello there")
-(git :add :filepattern [".note"])
+(git :init :directory "/tmp/gita-example")
+(git :cd "/tmp/gita-example")
 ```
 
+We start off by creating three files and then commiting just the first
+
+```clojure
+(do (spit "/tmp/gita-example/hello.txt" "hello")
+    (spit "/tmp/gita-example/world.txt" "world")
+    (spit "/tmp/gita-example/again.txt" "again"))
+
+(git :add :filepattern ["hello.txt"])
+=> {"hello.txt" #{:merged}}
+
+(git :commit :message "Added Hello.txt")
+=> {:commit-time 1425683330,
+    :name "9f1177ad928d7dea2afedd58b1fb7192b3523a6c",
+    :author-ident {:email-address "z@caudate.me",
+                   :name "Chris Zheng",
+                   :time-zone-offset 330,
+                   :when #inst "2015-03-06T23:08:50.000-00:00"},
+    :full-message "Added Hello.txt"}
+```
+
+Feel free to use your shell to browse to `/tmp/gita-example` and run `git status`. Now we can check what we have committed using `:log`:
+
+```clojure
+(git :log)
+=> [{:commit-time 1425683330,
+    :name "9f1177ad928d7dea2afedd58b1fb7192b3523a6c",
+    :author-ident {:email-address "z@caudate.me",
+                   :name "Chris Zheng",
+                   :time-zone-offset 330,
+                   :when #inst "2015-03-06T23:08:50.000-00:00"},
+     :full-message "Added Hello.txt"}]
+```
+
+Oops.. I made an error in the status message. The file should be in lowercase. We can fix that:
+
+```
+(git :commit :message "Added `hello.txt`" :amend true)
+=> {:commit-time 1425683376,
+    :name "f21fe52cdc3511918b7d52e43f909dbe3c380159",
+    :author-ident {:email-address "z@caudate.me",
+                   :name "Chris Zheng",
+                   :time-zone-offset 330,
+                   :when #inst "2015-03-06T23:08:50.000-00:00"},
+    :full-message "Added `hello.txt`"}
+```
+
+Now lets add all the files and commit, and check that we indeed have two commits: 
+
+```
+(git :add :filepattern ["."])
+=> {"again.txt" #{:merged},
+    "hello.txt" #{:merged},
+    "world.txt" #{:merged}}
+
+(git :commit :message "Added `world.txt` and `again.txt`")
+=> {:commit-time 1425683590,
+    :name "2aad32d04470f118c1c891e163290433d70bbd21",
+    :author-ident {:email-address "z@caudate.me",
+                   :name "Chris Zheng",
+                   :time-zone-offset 330,
+                   :when #inst "2015-03-06T23:13:10.000-00:00"},
+    :full-message "Added `world.txt` and `again.txt`"}
+
+(mapv :name (git :log))
+=> ["2aad32d04470f118c1c891e163290433d70bbd21"
+    "f21fe52cdc3511918b7d52e43f909dbe3c380159"]
+```    
+
+We can test out `:rm` for removing files. Feel free to run `(git :rm :?)` to see the inputs:
+
+```clojure
+(git :rm :filepattern ["hello.txt" "world.txt"])
+=> {"again.txt" #{:merged}}
+
+(git :commit :message "Leave `again.txt` as the only file")
+(mapv :name (git :log))
+=> ["9fb08f2b6d10ae1ec8cf15eb81ac56edd504160f"
+    "2aad32d04470f118c1c891e163290433d70bbd21"
+    "f21fe52cdc3511918b7d52e43f909dbe3c380159"]
+
+;; Checking the status, it is clean
+(git :status)
+=> {:clean? true, :uncommitted-changes? false}
+```
+
+#### raw-objects - :&
+
+When `:&` is used in the parameter, the raw result of the commant call is returned instead of being converted into a corresponding map/string. This is demonstrated in the example below:
+
+```clojure
+(type (git :init :directory "/tmp/git-example" :&))
+=> org.eclipse.jgit.api.Git
+
+(def status-obj (git :status :&))
+(type status-obj)
+=> org.eclipse.jgit.api.Status
+
+;; Instead of the ugly <org.eclipse.jgit.api.Status@234234> notation, the 
+;; object is prettied up for printing
+(println status-obj)
+=> #status::{:clean? true, :uncommitted-changes? false} 
+
+(require '[hara.reflect :as reflect])
+(reflect/query-class status-obj [:name])
+=> ("clean" "diff" "getAdded" "getChanged" "getConflicting" 
+    "getConflictingStageState" "getIgnoredNotInIndex" "getMissing" 
+    "getModified" "getRemoved" "getUncommittedChanges" "getUntracked" 
+    "getUntrackedFolders" "hasUncommittedChanges" "isClean" "new")
+```
+
+#### working locally - :branch, :checkout and :merge
+
+Lets look at branching, running `(git :branch)` lists the are 4 subcommands:
+
+```clojure
+(git :branch)
+=> #{:create :delete :rename :list}
+```
+
+Using `:list` the current branches that are avaliable:
+
+```clojure
+(git :branch :list)
+=> [{:object-id "9fb08f2b6d10ae1ec8cf15eb81ac56edd504160f"
+     :name "refs/heads/master"
+     :peeled-object-id nil
+     :storage "LOOSE"
+     :peeled? false :symbolic? false
+     :snap-shot {:last-modified 1425683834000
+                 :last-read 1425701350639
+                 :cannot-be-racily-clean true}}]
+```
+
+The options that come with the :branch :create subcommand are:
+
+```
+(git :branch :create :?)
+=> {:upstream-mode #{"SET_UPSTREAM" "NOTRACK" "TRACK"}
+    :start-point java.lang.String
+    :name java.lang.String
+    :force boolean}
+```
+
+We can create a new branch, we name this "tito"
+
+```
+(git :branch :create :name "tito")
+=> {:object-id "9fb08f2b6d10ae1ec8cf15eb81ac56edd504160f"
+    :name "refs/heads/tito"
+    :peeled-object-id nil
+    :storage "LOOSE"
+    :peeled? false :symbolic? false
+    :snap-shot {:last-modified 1425701503000
+                :last-read 1425701503780
+                :cannot-be-racily-clean false}}
+```
+
+We take a list of the git branches and then checkout a new branch named tito
+
+```clojure
+(map :name (git :branch :list))
+=> ("refs/heads/master" "refs/heads/tito")
+
+(:name (git :checkout :name "tito"))
+=> "refs/heads/tito"
+```
+
+We change two files and look at the `:diff`
+
+```clojure
+(spit "/tmp/gita-example/again.txt" "bonjour")
+(spit "/tmp/gita-example/world.txt" "world")
+(git :diff)
+=> [{:change-type "MODIFY",
+     :score 0,
+     :old-path "again.txt",
+     :new-mode "100644",
+     :tree-filter-marks 0,
+     :new-path "again.txt",
+     :old-id "d3dc34affe77fdb18e4beef9d9b3213d791358e5",
+     :old-mode "100644",
+     :new-id "80bc9f6d40eef64fbaa976981b6b2916f71c1558"}
+    {:change-type "ADD",
+     :score 0,
+     :old-path "/dev/null",
+     :new-mode "100644",
+     :tree-filter-marks 0,
+     :new-path "world.txt",
+     :old-id "0000000000000000000000000000000000000000",
+     :old-mode "0",
+     :new-id "04fea06420ca60892f73becee3614f6d023a4b7f"}]
+```
+
+We can now commit our changes and merge the changes into master
+
+```clojure
+(do (git :add :filepattern ["."])
+    (git :commit :message "Changed to french"))
+=> {:commit-time 1425702855,
+    :name "964555215c54203747d118a45bf2595bf01257d1" ;; Take a note of this ID
+    :full-message "Changed to french"}
+
+
+;; I haven't figured out how to just write something like `(git :merge "tito")` but we 
+;; can use the id of the commit to do it:
+(git :checkout :name "master")
+(git :merge :include "964555215c54203747d118a45bf2595bf01257d1")
+=> {:base {:commit-time 1425702855
+           :name "9fb08f2b6d10ae1ec8cf15eb81ac56edd504160f"}
+    :checkout-conflicts nil :conflicts nil
+    :failing-paths nil :merge-status "Already-up-to-date"
+    :merged-commits [....]
+    :new-head {:commit-time 1425702855
+               :name "964555215c54203747d118a45bf2595bf01257d1"
+               :full-message "Changed to french"}}
+```
+
+PHEW. Lets keep going
+
+#### working remotely - :pull, :push
+
+
+#### advanced - , :stash, :diff, :rebase 
 
 ## License
 

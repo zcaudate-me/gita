@@ -59,6 +59,12 @@
   :from   (fn [data _]
             (org.eclipse.jgit.lib.ObjectId/fromString data))}
 
+ org.eclipse.jgit.lib.AbbreviatedObjectId
+ {:slug   "id"
+  :to     .name
+  :from   (fn [data _]
+            (org.eclipse.jgit.lib.AbbreviatedObjectId/fromString data))}
+
  org.eclipse.jgit.lib.Repository
  {:slug   "repository"
   :to     (fn [^org.eclipse.jgit.lib.Repository repo]
