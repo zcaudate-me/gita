@@ -2,12 +2,11 @@
 
 [![Build Status](https://travis-ci.org/zcaudate/gita.png?branch=master)](https://travis-ci.org/zcaudate/gita)
 
-the introspective [jgit](https://eclipse.org/jgit/) wrapper
- 
-> 'No one who does good work will ever come to a bad end, either here or in the world to come'
+    'No one who does good work will ever come to a bad end, either here or in the world to come'
+            - Bhagavad Gita
 
->           Bhagavad Gita
- 
+the introspective [jgit](https://eclipse.org/jgit/) wrapper
+  
 ## Overview
 
 `gita` is a wrapper around the popular [jgit](https://eclipse.org/jgit/) project. An alternative library is [clj-jgit](https://github.com/clj-jgit/clj-jgit) and it does have alot more higher-level functions at the moment. However, due to the enormous amount of functionality around [git](http://www.git.org), it is very difficult to manually write a wrapper around the entire suite. So The novelty of [gita](https://www.github.com/zcaudate/gita) is that it uses reflection provided by [hara.reflect](https://www.github.com/zcaudate/hara) to generate the wrapper interface in such a way that the entire functionality of the main `org.eclipse.jgit.api.Git` class is accessible and usable in a clojure compatible convention.
