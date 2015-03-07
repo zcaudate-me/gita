@@ -4,10 +4,10 @@
 
 the introspective [jgit](https://eclipse.org/jgit/) wrapper
 
-    'No one who does good work will ever come to a
-     bad end, either here or in the world to come'
+     No one who does good work will ever come to a
+     bad end, either here or in the world to come.
      
-      - Bhagavad Gita
+      - Krishna, Bhagavad Gita
   
 ## Overview
 
