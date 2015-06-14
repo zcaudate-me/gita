@@ -26,7 +26,12 @@
 
 (defn object-apply [methods obj f]
   (reduce-kv (fn [m k ele]
-               (assoc m k (f (ele obj))))
+               (try
+                 (let [res (f (ele obj))]
+                   (assoc m k res))
+                 (catch Throwable t
+                   (println "Cannot process:" ele f)
+                   m)))
              {} methods))
 
 (defn object-data

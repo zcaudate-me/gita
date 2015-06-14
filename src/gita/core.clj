@@ -1,8 +1,11 @@
 (ns gita.core
   (:require [gita.api.commands :as commands]
             [gita.api.repository :as repository]
-            [gita.interop :as interop])
+            [gita.interop :as interop]
+            [hara.namespace.import :as ns])
   (:import org.eclipse.jgit.api.Git))
+
+(ns/import gita.api.repository [repository])
 
 (defonce ^:dynamic *dir* nil)
 

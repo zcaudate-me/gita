@@ -4,8 +4,8 @@
   :license {:name "The MIT License"
             :url "http://http://opensource.org/licenses/MIT"}
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [im.chit/hara.reflect "2.1.12"]
-                 [im.chit/hara.string.case "2.1.12"]
+                 [im.chit/hara.reflect "2.2.0-SNAPSHOT"]
+                 [im.chit/hara.string.case "2.2.0-SNAPSHOT"]
                  [im.chit/vinyasa.maven "0.3.4"]
                  [org.eclipse.jgit "3.6.2.201501210735-r"]]
   :global-vars {*warn-on-reflection* true}
