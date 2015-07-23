@@ -70,7 +70,7 @@
       "f21fe52cdc3511918b7d52e43f909dbe3c380159"]
 
   (git :status)
-  => {:clean? true, :uncommitted-changes? false}
+  => {:clean? true, :uncommitted-changes! false}
 
   (def status-obj (git :status :&))
   (type status-obj)

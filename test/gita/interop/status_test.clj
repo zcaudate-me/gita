@@ -14,22 +14,22 @@
 
    (with-out-str
      (print (git-status-call tempdir)))
-   => "#status::{:clean? true, :uncommitted-changes? false}"
+   => "#status::{:clean? true, :uncommitted-changes! false}"
 
    (-> (git-status-call tempdir)
        (object/to-data))
-   => {:clean? true, :uncommitted-changes? false}
+   => {:clean? true, :uncommitted-changes! false}
 
    (spit (str path "/hello.txt") "hello")
 
    (-> (git-status-call tempdir)
        (object/to-data))
-   => {:clean? false, :uncommitted-changes? false, :untracked #{"hello.txt"}}
+   => {:clean? false, :uncommitted-changes! false, :untracked #{"hello.txt"}}
 
    (spit (str path "/world.txt") "world")
    (-> (git-status-call tempdir)
        (object/to-data))
-   => {:clean? false, :uncommitted-changes? false, :untracked #{"hello.txt" "world.txt"}}
+   => {:clean? false, :uncommitted-changes! false, :untracked #{"hello.txt" "world.txt"}}
 
    (delete-recursively tempdir)))
 
@@ -43,7 +43,7 @@
    (git-add-call tempdir)
    (-> (git-status-call tempdir)
        (object/to-data))
-   => {:clean? false, :uncommitted-changes? true,
+   => {:clean? false, :uncommitted-changes! true,
        :uncommitted-changes #{"hello.txt"},
        :added #{"hello.txt"}}
 
@@ -59,6 +59,6 @@
    (git-commit-call tempdir)
    (-> (git-status-call tempdir)
        (object/to-data))
-   => {:clean? true, :uncommitted-changes? false}
+   => {:clean? true, :uncommitted-changes! false}
 
    (delete-recursively tempdir)))

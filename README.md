@@ -61,17 +61,17 @@ There is only one function: `git`. It's usage is very much like how the command-
 
 ;; Lets check the status of our new repository
 (git "/tmp/gita-example" :status)
-=> {:clean? true, :uncommitted-changes? false}
+=> {:clean? true, :uncommitted-changes! false}
 
 ;; Now the default directory is set and we don't
 ;; need to set it next time we call:
 (git :status)
-=> {:clean? true, :uncommitted-changes? false}
+=> {:clean? true, :uncommitted-changes! false}
 
 ;; We can also use `:cd` to set the default directory
 (git :cd "/tmp/gita-example")
 (git :status)
-=> {:clean? true, :uncommitted-changes? false}
+=> {:clean? true, :uncommitted-changes! false}
 
 ;; To check the current working directory, use `:pwd`
 (git :pwd)
@@ -80,7 +80,7 @@ There is only one function: `git`. It's usage is very much like how the command-
 ;; We add a file and then check for the repository status 
 (spit "/tmp/gita-example/hello.txt" "hello there")
 (git :status)
-=> {:clean? false, :uncommitted-changes? false, :untracked #{"hello.txt"}}
+=> {:clean? false, :uncommitted-changes! false, :untracked #{"hello.txt"}}
 ```
 
 #### exploration and self-help - :? and :help
@@ -229,7 +229,7 @@ We can test out `:rm` for removing files. Feel free to run `(git :rm :?)` to see
 
 ;; Checking the status, it is clean
 (git :status)
-=> {:clean? true, :uncommitted-changes? false}
+=> {:clean? true, :uncommitted-changes! false}
 ```
 
 #### raw-objects - :&
@@ -247,7 +247,7 @@ When `:&` is used in the parameter, the raw result of the commant call is return
 ;; Instead of the ugly <org.eclipse.jgit.api.Status@234234> notation, the 
 ;; object is prettied up for printing
 (println status-obj)
-=> #status::{:clean? true, :uncommitted-changes? false} 
+=> #status::{:clean? true, :uncommitted-changes! false} 
 
 (require '[hara.reflect :as reflect])
 (reflect/query-class status-obj [:name])
