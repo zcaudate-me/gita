@@ -3,4 +3,6 @@
              dir-cache
              file-snapshot
              rev-walk
+             map-like
+             string-like
              status]))

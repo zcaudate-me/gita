@@ -1,6 +1,7 @@
 (ns gita.interop.dir-cache-test
   (:require [gita.interop.helpers :refer :all]
             [gita.interop :as interop]
+            [hara.object :as object]
             [clojure.java.io :as io]
             [midje.sweet :refer :all]))
 
@@ -10,12 +11,12 @@
    (git-status-call tempdir)
    (spit (str path "/hello.txt") "hello")
    (-> (git-add-call tempdir)
-       (interop/to-data))
+       (object/to-data))
    => {"hello.txt" #{:smudged :merged}}
 
    (-> (git-add-call tempdir)
        (.getEntry 0)
-       (interop/to-data))
+       (object/to-data))
    => (contains {:merged? true, :file-mode "100644",
                  :stage 0, :update-needed? false,
                  :object-id string?, :intent-to-add? false,

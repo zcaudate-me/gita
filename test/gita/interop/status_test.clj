@@ -2,6 +2,7 @@
   (:use midje.sweet)
   (:require [gita.interop.status]
             [gita.interop :as interop]
+            [hara.object :as object]
             [clojure.java.io :as io]
             [gita.interop.helpers :refer :all]))
 
@@ -16,18 +17,18 @@
    => "#status::{:clean? true, :uncommitted-changes? false}"
 
    (-> (git-status-call tempdir)
-       (interop/to-data))
+       (object/to-data))
    => {:clean? true, :uncommitted-changes? false}
 
    (spit (str path "/hello.txt") "hello")
 
    (-> (git-status-call tempdir)
-       (interop/to-data))
+       (object/to-data))
    => {:clean? false, :uncommitted-changes? false, :untracked #{"hello.txt"}}
 
    (spit (str path "/world.txt") "world")
    (-> (git-status-call tempdir)
-       (interop/to-data))
+       (object/to-data))
    => {:clean? false, :uncommitted-changes? false, :untracked #{"hello.txt" "world.txt"}}
 
    (delete-recursively tempdir)))
@@ -41,7 +42,7 @@
    (spit (str path "/hello.txt") "hello")
    (git-add-call tempdir)
    (-> (git-status-call tempdir)
-       (interop/to-data))
+       (object/to-data))
    => {:clean? false, :uncommitted-changes? true,
        :uncommitted-changes #{"hello.txt"},
        :added #{"hello.txt"}}
@@ -57,7 +58,7 @@
    (git-add-call tempdir)
    (git-commit-call tempdir)
    (-> (git-status-call tempdir)
-       (interop/to-data))
+       (object/to-data))
    => {:clean? true, :uncommitted-changes? false}
 
    (delete-recursively tempdir)))
