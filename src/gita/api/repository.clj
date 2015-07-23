@@ -40,7 +40,7 @@
         (map #(hash-map :sha (.getName %)
                         :time (java.util.Date. (* 1000 (.getCommitTime %))))))))
 
-(defn time->id [repo t]
+(defn time->id [repo ^java.util.Date t]
   (loop [[x & [y & _ :as more]] (reverse (list-commits repo))]
     (cond (nil? x)
           nil
@@ -48,7 +48,7 @@
           (nil? y)
           (if (.after t (:time x))
             (:sha x))
-          
+
           (and (or (.after  t (:time x))
                    (= t (:time x)))
                (.before t (:time y)))
@@ -58,7 +58,7 @@
 
 (defn resolve-id [repo x]
   (cond (instance? java.util.Date x) (recur repo (time->id repo x))
-        (instance? java.lang.Long x) (recur repo (time->id repo (java.util.Date. x))) 
+        (instance? java.lang.Long x) (recur repo (time->id repo (java.util.Date. x)))
         (string? x) (.resolve repo x)))
 
 (defn list-files
@@ -82,7 +82,7 @@
 
 (defn stream
   ([repo path]
-   (file repo path Constants/HEAD))
+   (stream repo path Constants/HEAD))
   ([repo path version]
    (let [rwalk    (RevWalk. repo)
          cid      (resolve-id repo version)]
@@ -101,11 +101,11 @@
 (comment
   (require '[rewrite-clj.zip :as source])
   (source/of-string (slurp (stream (repository) "project.clj")))
-  
+
   (list-files (repository) #inst "2015-06-13T19:51:14.000-00:00")
   (list-files (repository) #inst "2015-06-13T19:51:19.000-00:00")
   (list-files (repository) #inst "2015-06-13T19:51:41.000-00:00")
-  
+
   ({:time #inst "2015-06-13T19:51:31.000-00:00", :commit "48911d39d335afbf89ce314d412f47d2884750e8"} {:time #inst "2015-06-13T19:51:14.000-00:00", :commit "3ce4dff444260ccdc93d08d550fd1c3a4d44b1ea"})
   (type (first a))
   (str a)

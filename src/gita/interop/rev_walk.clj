@@ -1,18 +1,19 @@
 (ns gita.interop.rev-walk
-  (:require [gita.interop.common :as common])
+  (:require [hara.protocol.data :as data]
+            [hara.object :as object])
   (:import org.eclipse.jgit.revwalk.RevWalk))
 
-(defmethod common/-meta-object RevWalk
+(defmethod data/-meta-object RevWalk
   [type]
   {:class     RevWalk
    :types     #{clojure.lang.PersistentVector}
-   :to-data   common/-to-data})
+   :to-data   data/-to-data})
 
-(extend-protocol common/IData
+(extend-protocol data/IData
   RevWalk
   (-to-data [walk]
-    (->> walk (.iterator) common/to-data)))
+    (->> walk (.iterator) object/to-data)))
 
 (defmethod print-method RevWalk
   [v ^java.io.Writer w]
-  (.write w (str "#commits::" (common/-to-data v))))
+  (.write w (str "#commits::" (data/-to-data v))))

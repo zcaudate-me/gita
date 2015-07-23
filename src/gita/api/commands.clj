@@ -4,9 +4,8 @@
             [hara.common.string :refer [to-string]]
             [hara.string.case :as case]
             [clojure.string :as string]
-            [gita.api.apply :as apply]
-            [gita.interop :as interop]
-            [gita.interop.enum :as enum])
+            [hara.object :as object]
+            [gita.interop :as interop])
   (:import org.eclipse.jgit.api.Git))
 
 (defn git-all-commands []
@@ -35,16 +34,16 @@
                          :element ele}])))
        (reduce (fn [m [k val]]
                  (if (or (not (get m k))
-                         (-> val :params second interop/meta-object :from-data))
+                         (-> val :params second object/meta-object :from-data))
                    (assoc m k val)
                    m))
                {})))
 
 (defn command-input [opt]
   (let [param    (-> opt :element :params second)
-        mobj (interop/meta-object param)
+        mobj (object/meta-object param)
         out  (cond (= Enum (:class mobj))
-                   (->> param enum/enum-values (map interop/to-data) set)
+                   (->> param object/enum-values (map object/to-data) set)
 
                    (:from-data mobj)
                    (first (:types mobj))
@@ -69,15 +68,15 @@
                 (case (:type field)
                   :single (let [curr (take pcount more)
                                 nxt  (drop pcount more)]
-                            (recur nxt (apply/apply-with-coercion ele (cons command curr))))
+                            (recur nxt (object/apply-with-coercion ele (cons command curr))))
                   :multi  (let [[arr & xs] more
                                 arr (if (vector? arr) arr [arr])]
                             (recur xs
                                    (reduce (fn [command entry]
                                              (cond (vector? entry)
-                                                   (apply/apply-with-coercion ele (cons command entry))
+                                                   (object/apply-with-coercion ele (cons command entry))
 
-                                                   :else (apply/apply-with-coercion ele [command entry])))
+                                                   :else (object/apply-with-coercion ele [command entry])))
                                            command arr)))))
               (throw (Exception. (str "Option " slug " is not avaliable: " (-> options keys sort)))))))))
 

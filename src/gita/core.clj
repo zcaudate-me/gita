@@ -2,6 +2,7 @@
   (:require [gita.api.commands :as commands]
             [gita.api.repository :as repository]
             [gita.interop :as interop]
+            [hara.object :as object]
             [hara.namespace.import :as ns])
   (:import org.eclipse.jgit.api.Git))
 
@@ -34,7 +35,7 @@
                    (f cmd))]
       (if (some #{:&} inputs)
         res
-        (interop/to-data res)))))
+        (object/to-data res)))))
 
 (defn run-base [cmd inputs]
   (-> ^java.util.concurrent.Callable (commands/command-initialize-inputs cmd inputs)

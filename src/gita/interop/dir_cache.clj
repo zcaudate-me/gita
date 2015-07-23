@@ -1,12 +1,13 @@
 (ns gita.interop.dir-cache
-  (:require [gita.interop.common :as common])
+  (:require [hara.protocol.data :as data]
+            [hara.object :as object])
   (:import org.eclipse.jgit.dircache.DirCache))
 
-(defmethod common/-meta-object DirCache
+(defmethod data/-meta-object DirCache
   [type]
   {:class   DirCache
    :types   #{String}
-   :to-data common/-to-data})
+   :to-data data/-to-data})
 
 (defn process-entry [entry]
   [(:path-string entry)
@@ -14,14 +15,14 @@
                 (if (= true v) (conj s (-> k name (.replace "?" "") keyword)) s))
               #{} entry)])
 
-(extend-protocol common/IData
+(extend-protocol data/IData
   DirCache
   (-to-data [^DirCache dir-cache]
     (let [count (.getEntryCount dir-cache)]
-      (->> (map (fn [^Long i] (-> (.getEntry dir-cache i) common/to-data process-entry))
+      (->> (map (fn [^Long i] (-> (.getEntry dir-cache i) object/to-data process-entry))
                 (range count))
            (into {})))))
 
 (defmethod print-method DirCache
   [v ^java.io.Writer w]
-  (.write w (str "#dir::" (common/-to-data v))))
+  (.write w (str "#dir " (data/-to-data v))))
