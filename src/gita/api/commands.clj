@@ -5,6 +5,7 @@
             [hara.string.case :as case]
             [clojure.string :as string]
             [hara.object :as object]
+            [hara.object.access :as access]
             [gita.interop :as interop])
   (:import org.eclipse.jgit.api.Git))
 
@@ -68,15 +69,15 @@
                 (case (:type field)
                   :single (let [curr (take pcount more)
                                 nxt  (drop pcount more)]
-                            (recur nxt (object/apply-with-coercion ele (cons command curr))))
+                            (recur nxt (access/apply-with-coercion ele (cons command curr))))
                   :multi  (let [[arr & xs] more
                                 arr (if (vector? arr) arr [arr])]
                             (recur xs
                                    (reduce (fn [command entry]
                                              (cond (vector? entry)
-                                                   (object/apply-with-coercion ele (cons command entry))
+                                                   (access/apply-with-coercion ele (cons command entry))
 
-                                                   :else (object/apply-with-coercion ele [command entry])))
+                                                   :else (access/apply-with-coercion ele [command entry])))
                                            command arr)))))
               (throw (Exception. (str "Option " slug " is not avaliable: " (-> options keys sort)))))))))
 

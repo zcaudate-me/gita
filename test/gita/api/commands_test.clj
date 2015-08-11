@@ -1,6 +1,7 @@
 (ns gita.api.commands-test
   (:require [gita.api.commands :refer :all]
             [hara.object :as object]
+            [hara.object.access :as access]
             [gita.interop :as interop]
             [midje.sweet :refer :all]
             [hara.reflect :as reflect]
@@ -47,7 +48,7 @@
 (fact "check if application with coercion works"
  (let [init-command (Git/init)
        set-dir  (reflect/query-class init-command [:# "setGitDir"])]
-   (->> (object/apply-with-coercion set-dir [init-command ".git"])
+   (->> (access/apply-with-coercion set-dir [init-command ".git"])
         (reflect/delegate)
         (into {})))
  => {:directory nil, :bare false, :gitDir (io/file ".git")})
