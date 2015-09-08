@@ -3,9 +3,10 @@
             [gita.core :refer :all]))
 
 (comment
-
+  (git)
 
   (git :init :directory "/tmp/gita-example")
+
   (git :cd "/tmp/gita-example")
   (do (spit "/tmp/gita-example/hello.txt" "hello")
       (spit "/tmp/gita-example/world.txt" "world")

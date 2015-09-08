@@ -6,7 +6,7 @@
             [hara.namespace.import :as ns])
   (:import org.eclipse.jgit.api.Git))
 
-(ns/import gita.api.repository [repository])
+(ns/import gita.api.repository [repository repository?])
 
 (defonce ^:dynamic *dir* nil)
 
@@ -58,12 +58,16 @@
   ([dir? & args]
    (let [all-commands (commands/git-all-commands)
          curr (System/getProperty "user.dir")
-         [dir [c & cs :as args]] (if (keyword? dir?)
-                                    [(or *dir* curr)
-                                     (cons dir? args)]
-                                    [(do (alter-var-root #'*dir* (fn [x] dir?))
-                                         dir?)
-                                     args])]
+         [dir [c & cs :as args]] (cond (keyword? dir?)
+                                       [(or *dir* curr)
+                                        (cons dir? args)]
+
+                                       
+                                       
+                                       :else
+                                       [(do (alter-var-root #'*dir* (fn [x] dir?))
+                                            dir?)
+                                        args])]
      (cond (= :help c)
            (git-help all-commands)
 
