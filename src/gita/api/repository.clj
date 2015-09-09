@@ -4,11 +4,10 @@
   (:import org.eclipse.jgit.storage.file.FileRepositoryBuilder
            org.eclipse.jgit.lib.Constants
            org.eclipse.jgit.treewalk.filter.PathFilter
-           [org.eclipse.jgit.treewalk TreeWalk CanonicalTreeParser]
+           [org.eclipse.jgit.treewalk TreeWalk CanonicalTreeParser AbstractTreeIterator]
            [org.eclipse.jgit.revwalk RevWalk RevCommit]
            org.eclipse.jgit.api.Git
            org.eclipse.jgit.lib.Repository
-           [org.eclipse.jgit.diff HistogramDiff RawTextComparator RawText]
            java.util.Date
            java.io.File))
 
@@ -26,7 +25,7 @@
       git-dir
       (recur (.getParent curr-dir)))))
 
-(defn repository
+(defn ^Repository repository
   ([] (repository (or *current-directory*
                       (System/getProperty "user.dir"))))
   ([path]
@@ -118,7 +117,7 @@
            (.addTree rtree)
            (.setRecursive true)))))))
 
-(defn tree-parser
+(defn ^AbstractTreeIterator tree-parser
   ([repo] (tree-parser repo nil))
   ([^Repository repo opts]
    (let [{:keys [branch commit]} (merge {:branch Constants/MASTER :commit Constants/HEAD}
@@ -151,31 +150,12 @@
                (.open repo)
                (.openStream)))))
 
-(defrecord Difference [])
-
-(defn difference
-  [^Repository repo old-id new-id]
-  (let [get-text (fn [id] (if id
-                            (RawText. (.getCachedBytes (.open repo id Constants/OBJ_BLOB)))
-                            RawText/EMPTY_TEXT))
-        old-text (get-text old-id)
-        new-text (get-text new-id)]
-    (-> (HistogramDiff.)
-        (.diff RawTextComparator/DEFAULT old-text new-text))))
-
-(defn list-difference
-  ([repo old new]
-   (-> (Git. repo)
-       (.diff)
-       (.setOldTree (tree-parser repo old))
-       (.setNewTree (tree-parser repo new))
-       (.call))))
-
-
-(defn blob [repo id]
-  (-> (.open (repository)
+(defn blob
+  [^Repository repo id]
+  (-> (.open repo
              id Constants/OBJ_BLOB)
       (.openStream)))
+
 
 (comment
   (diff-histogram
@@ -220,8 +200,14 @@
   
   (def entry (first (list-difference (repository)
                                      {}
-                                     {:commit "HEAD^1"})))
+                                     {:commit "HEAD^3"})))
 
+  (type (.getChangeType entry))
+  
+  (first (filter #(-> % (.getChangeType) (not= org.eclipse.jgit.diff.DiffEntry$ChangeType/MODIFY))
+                 (list-difference (repository)
+                                  {}
+                                  {:commit "HEAD^3"})))
   
   (-> (.open (repository)
              (.resolve (repository) "b07d752684b9be0bbd710d770c4d3a5ebc53f09d")

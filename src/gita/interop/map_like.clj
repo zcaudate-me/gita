@@ -17,4 +17,5 @@
                                                :include [:commit-time :name :author-ident :full-message]}
  org.eclipse.jgit.lib.PersonIdent             {:tag "person" :exclude [:time-zone]}
  org.eclipse.jgit.transport.RemoteRefUpdate   {:tag "remote" :exclude [:tracking-ref-update]}
- org.eclipse.jgit.transport.TrackingRefUpdate {:tag "track"})
+ org.eclipse.jgit.transport.TrackingRefUpdate {:tag "track"}
+ org.eclipse.jgit.diff.Edit                   {:tag "edit"})
