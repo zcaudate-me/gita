@@ -1,5 +1,6 @@
 (ns gita.api.difference
   (:require [gita.api.repository :as repository]
+            [clojure.java.io :as io]
             [hara.object :as object])
   (:import [org.eclipse.jgit.diff HistogramDiff RawTextComparator RawText
             DiffEntry DiffEntry$ChangeType Edit EditList]
@@ -13,21 +14,60 @@
 
 (defrecord Change [])
 
+(defmethod print-method Change
+  [v ^java.io.Writer w]
+  (let [shorthand  (fn [v] [(-> v :lines :start) (-> v :lines :end)])]
+    (.write w (str "#" (name (:type v)) " "
+                   (-> (into {} v)
+                       (dissoc :type)
+                       (update-in [:old] shorthand)
+                       (update-in [:new] shorthand))))))
+
+(defn retrieve-text
+  [^Repository repo ^AbbreviatedObjectId id start end]
+  (cond (= (.name id) null-id) []
+
+        (= start end) []
+
+        :else
+        (let [lines (-> repo
+                        (.open (.toObjectId id) Constants/OBJ_BLOB)
+                        (.openStream)
+                        (io/reader)
+                        (line-seq)
+                        vec)
+              cnt (count lines)]
+          (->> lines
+               (map-indexed (fn [i line]
+                              [(inc i) line]))
+               (keep (fn [[i line]]
+                       (if (< start i (inc end))
+                         (if (= cnt i)
+                           line
+                           (str line "\\n")))))))))
+
+(defn edit->change
+  [^Edit edit]   
+  (map->Change {:type (enum->keyword (.getType edit))
+                :old {:lines {:start  (.getBeginA edit)
+                              :end    (.getEndA edit)
+                              :length (.getLengthA edit)}}
+                :new {:lines {:start  (.getBeginB edit)
+                              :end    (.getEndB edit)
+                              :length (.getLengthB edit)}}}))
+
 (defn format-change
   [^Repository repo ^Edit edit old-id new-id]
-  (let [type (enum->keyword (.getType edit))]
-    (case type
-      :insert nil
-      :delete nil
-      :replace nil
-      :empty nil)))
+  (let [retrieve (fn [{:keys [lines] :as entry} id]
+                   (assoc entry :text (retrieve-text repo id (:start lines) (:end lines))))]
+    (-> (edit->change edit)
+        (update-in [:old] retrieve old-id)
+        (update-in [:new] retrieve new-id))))
 
-(defrecord Difference [])
-
-(defn difference
+(defn format-changes
   [^Repository repo entry old-id new-id]
   (let [get-text (fn [^AbbreviatedObjectId id]
-                   (if id
+                   (if (and id (not= (.name id) null-id))
                      (-> repo
                          (.open (.toObjectId id) Constants/OBJ_BLOB)
                          (.getCachedBytes)
@@ -37,21 +77,26 @@
         new-text (get-text new-id)
         changes  (-> (HistogramDiff.)
                      (.diff RawTextComparator/DEFAULT old-text new-text))]
-    changes))
+    (mapv #(format-change repo % old-id new-id) changes)))
+
+(defrecord Entry [])
+
+(defmethod print-method Entry
+  [v ^java.io.Writer w]
+  (.write w (str "#" (name (:type v)) " " (into {} (dissoc v :type)))))
 
 (defn format-entry
   [^Repository repo ^DiffEntry entry]
-  (let [type (enum->keyword (.getChangeType entry))]
+  (let [type    (enum->keyword (.getChangeType entry))
+        changes (format-changes repo entry (.getOldId entry) (.getNewId entry))
+        entry   (-> (object/to-data entry)
+                    (assoc :type type :changes changes)
+                    (dissoc :change-type :tree-filter-marks :score :new-mode :old-mode)
+                    (map->Entry))]
     (case type
-      :modify (difference repo (.getOldId entry) (.getNewId entry))
-
-      :add   (difference repo nil (.getNewId entry))
-
-      :delete (difference repo (.getOldId entry) nil)
-      
-      :rename (throw (Exception. "RENAME NOT SUPPORTED"))
-
-      :copy   (throw (Exception. "COPY NOT SUPPORTED")))))
+      :add    (dissoc entry :old-id :old-path)
+      :delete (dissoc entry :new-id :new-path)
+      entry)))
 
 (defn list-difference
   ([^Repository repo old new]
@@ -59,41 +104,22 @@
        (.diff)
        (.setOldTree (repository/tree-parser repo old))
        (.setNewTree (repository/tree-parser repo new))
-       (.call))))
-
-(defn format-diff
-  [repo entries]
-  (map (partial format-entry repo) entries))
+       (.call)
+       (->> (map (partial format-entry repo))))))
 
 
 
 (comment
-  (.* (ffirst (list-difference
+
+  (first (list-difference
                (repository/repository)
                {:commit "HEAD~3"}
                {}
+               
+               
                ))
-      :name)
-  ("after" "before" "beginA" "beginB" "clone" "endA" "endB" "equals" "extendA" "extendB" "finalize" "getBeginA" "getBeginB" "getClass" "getEndA" "getEndB" "getLengthA" "getLengthB" "getType" "hashCode" "isEmpty" "notify" "notifyAll" "swap" "toString" "wait")
 
-  {:type     :modify
-   :old-path "src/gita/api/seek.clj"
-   :old-id   "173ce2e785437f37273a3ba58be2f30819ae4b48"
-   :changes  [{:type :replace
-               :old {:lines []
-                     :text  []}
-               :new {:lines []
-                     :text  []}}
-              {:type   :delete
-               :old {:lines []
-                     :text  []}
-               :new {:lines []
-                     :text  []}}
-              {:type :insert
-               :old {:lines []
-                     :text  []}
-               :new {:lines []
-                     :text  []}}]}
+  
   
   (format-diff
    (repository/repository)

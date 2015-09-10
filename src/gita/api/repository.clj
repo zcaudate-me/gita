@@ -1,13 +1,12 @@
 (ns gita.api.repository
   (:require [clojure.java.io :as io]
             [gita.interop :as interop])
-  (:import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-           org.eclipse.jgit.lib.Constants
-           org.eclipse.jgit.treewalk.filter.PathFilter
+  (:import [org.eclipse.jgit.lib Repository Constants]
            [org.eclipse.jgit.treewalk TreeWalk CanonicalTreeParser AbstractTreeIterator]
            [org.eclipse.jgit.revwalk RevWalk RevCommit]
            org.eclipse.jgit.api.Git
-           org.eclipse.jgit.lib.Repository
+           org.eclipse.jgit.storage.file.FileRepositoryBuilder
+           org.eclipse.jgit.treewalk.filter.PathFilter
            java.util.Date
            java.io.File))
 
