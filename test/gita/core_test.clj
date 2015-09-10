@@ -8,33 +8,6 @@
   (git :status)
   
   (git :checkout :name "gh-pages")
-  
-  #_{:add [java.lang.String],
-   :path [java.lang.String],
-   :range [java.lang.String],
-   :all [nil],
-   :not [java.lang.String],
-   :max-count int,
-   :skip int}
-  
-  (.resolve (repository "/tmp/gita-example") "HEAD")
-  => #id "322a91ed2250d2bfc44c837dcbfc139bdbc988e4"
-  (.resolve (repository "/tmp/gita-example") "HEAD^")
-  #id "e0edf5ec0a528dee7c4167d54a29108131ddd2f7"
-  (.resolve (repository "/tmp/gita-example") "HEAD^{tree}")
-  #id "443a3712ea4be675f2e2cd948fd261c4eb449331"
-  
-  (.resolve (repository "/tmp/gita-example") "HEAD^{tree}")
-  #id "443a3712ea4be675f2e2cd948fd261c4eb449331"
-  (.resolve (repository "/tmp/gita-example") "HEAD^^{tree}")
-  #id "b1d419f7293b5408a32fb309b3f8296077093f02"
-  (.resolve (repository "/tmp/gita-example") "HEAD^^^{tree}")
-  #id "b1d419f7293b5408a32fb309b3f8296077093f02"
-  (.resolve (repository "/tmp/gita-example") "HEAD^^^^{tree}")
-  #id "04df07b08ca746b3167d0f1d1514e2f39a52c16c"
-  (.resolve (repository "/tmp/gita-example") "HEAD^^^^^{tree}")
-  
-
 
   
   (git)

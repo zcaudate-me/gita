@@ -1,12 +1,14 @@
 (ns gita.core
   (:require [gita.api.commands :as commands]
             [gita.api.repository :as repository]
+            [gita.api.difference :as difference]
             [gita.interop :as interop]
             [hara.object :as object]
             [hara.namespace.import :as ns])
   (:import org.eclipse.jgit.api.Git))
 
-(ns/import gita.api.repository [repository repository?])
+(ns/import gita.api.repository [repository repository? list-commits list-files resolve-id raw blob]
+           gita.api.difference [list-difference])
 
 (defonce ^:dynamic *dir* nil)
 
