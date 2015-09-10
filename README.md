@@ -16,7 +16,7 @@ the introspective [jgit](https://eclipse.org/jgit/) wrapper
 The aims of this project are:
 
   - to have a git library for clojure that is simple and intuitive to use
-  - to use less than 1000 lines of code (currently 582 total)
+  - to use less than 1000 lines of code
   - to use reflection, allowing for:
     - self-directed exploration of the library
     - auto-generation of the clojure interface
@@ -29,7 +29,7 @@ The aims of this project are:
 Add to project.clj dependencies:
 
 ```clojure
-[im.chit/gita "0.1.0"]
+[im.chit/gita "0.2.0"]
 ```
 
 ## Usage

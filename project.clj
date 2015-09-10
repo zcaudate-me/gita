@@ -1,4 +1,4 @@
-(defproject im.chit/gita "0.1.8"
+(defproject im.chit/gita "0.2.0"
   :description "git on song"
   :url "https://www.github.com/zcaudate/gita"
   :license {:name "The MIT License"
