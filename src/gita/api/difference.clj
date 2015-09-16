@@ -98,22 +98,35 @@
       :delete (dissoc entry :new-id :new-path)
       entry)))
 
+(defn git-diff
+  [^Repository repo old new]
+  (-> (Git. repo)
+      (.diff)
+      (.setOldTree (repository/tree-parser repo old))
+      (.setNewTree (repository/tree-parser repo new))
+      (.call)))
+
 (defn list-difference
-  ([^Repository repo old new]
-   (-> (Git. repo)
-       (.diff)
-       (.setOldTree (repository/tree-parser repo old))
-       (.setNewTree (repository/tree-parser repo new))
-       (.call)
-       (->> (map (partial format-entry repo))))))
+  [^Repository repo old new]
+  (->> (git-diff repo old new)
+       (map (partial format-entry repo))))
 
-
+(defn list-file-changes
+  [^Repository repo old new]
+  (->> (git-diff repo old new)
+       (map (fn [entry]
+              {:path (.getNewPath entry) :type (enum->keyword (.getChangeType entry))}))
+       (filter (fn [{:keys [type]}] (#{:add :modify :copy} type)))))
 
 (comment
-
+  (list-file-changes
+   (repository/repository)
+   {:commit "HEAD~3"}
+   {})
+  
   (first (list-difference
-               (repository/repository)
-               {:commit "HEAD~3"}
+          (repository/repository)
+          {:commit "HEAD~3"}
                {}
                
                

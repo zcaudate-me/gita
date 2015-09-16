@@ -8,7 +8,7 @@
   (:import org.eclipse.jgit.api.Git))
 
 (ns/import gita.api.repository [repository repository? list-commits list-files resolve-id raw blob]
-           gita.api.difference [list-difference])
+           gita.api.difference [list-difference list-file-changes])
 
 (defonce ^:dynamic *dir* nil)
 
