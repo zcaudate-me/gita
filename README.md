@@ -29,7 +29,7 @@ The aims of this project are:
 Add to project.clj dependencies:
 
 ```clojure
-[im.chit/gita "0.2.0"]
+[im.chit/gita "0.2.5"]
 ```
 
 ## Usage
@@ -47,7 +47,7 @@ There is only one function: `git`. It's usage is very much like how the command-
 ;  [:add :apply :archive :blame :branch :checkout 
 ;   :cherry :clean :clone :commit :describe :diff 
 ;   :fetch :gc :init :log :ls :merge :name :notes 
-;   :pull :push :rebase :reflog :reset :revert :rm 
+;   :pull :push :rebase :reflog :remote :reset :revert :rm 
 ;   :stash :status :submodule :tag]
 ;
 ```

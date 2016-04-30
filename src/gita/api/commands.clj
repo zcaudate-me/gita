@@ -2,12 +2,29 @@
   (:require [hara.reflect :as reflect]
             [hara.reflect.util :as util]
             [hara.common.string :refer [to-string]]
+            [hara.class.inheritance :as inheritance]
             [hara.string.case :as case]
             [clojure.string :as string]
             [hara.object :as object]
-            [hara.object.access :as access]
             [gita.interop :as interop])
   (:import org.eclipse.jgit.api.Git))
+
+(defn may-coerce [^Class param arg]
+  (let [^Class targ (type arg)
+        {:keys [types from-map from-string from-vector]} (object/meta-write param)]
+    (cond (util/param-arg-match param targ) arg
+
+          from-map (from-map arg param)
+          from-string (from-string arg param)
+          from-vector (from-vector arg param)
+
+          :else
+          (throw (Exception. (str "Cannot convert value " arg
+                                  " of type " (.getName targ) " to " (.getName param)) )))))
+
+(defn apply-with-coercion
+  ([{:keys [params] :as ele} args]
+   (apply ele (map may-coerce params args))))
 
 (defn git-all-commands []
   (->> (reflect/query-class Git [:name :type])
@@ -21,7 +38,7 @@
                {})))
 
 (defn command-options [command]
-  (->> (reflect/query-class command [:method (type command)])
+  (->> (reflect/query-class command [:public :method (type command)])
        (map (fn [ele]
               (let [nm   (case/spear-case (:name ele))
                     op-type (if (= "set" (subs nm 0 3))
@@ -35,20 +52,24 @@
                          :element ele}])))
        (reduce (fn [m [k val]]
                  (if (or (not (get m k))
-                         (-> val :params second object/meta-object :from-data))
+                         (-> val :params second object/meta-write (dissoc :class) empty? not))
                    (assoc m k val)
                    m))
                {})))
 
 (defn command-input [opt]
   (let [param    (-> opt :element :params second)
-        mobj (object/meta-object param)
-        out  (cond (= Enum (:class mobj))
+        {:keys [to-map to-string to-vector]} (object/meta-read param)
+        out  (cond (-> param
+                       (inheritance/ancestor-list)
+                       set
+                       (get Enum))
                    (->> param object/enum-values (map object/to-data) set)
 
-                   (:from-data mobj)
-                   (first (:types mobj))
-
+                   to-map java.util.Map
+                   to-string String
+                   to-vector java.util.List
+                   
                    :else param)]
     (case (:type opt)
       :single out
@@ -69,15 +90,15 @@
                 (case (:type field)
                   :single (let [curr (take pcount more)
                                 nxt  (drop pcount more)]
-                            (recur nxt (access/apply-with-coercion ele (cons command curr))))
+                            (recur nxt (apply-with-coercion ele (cons command curr))))
                   :multi  (let [[arr & xs] more
                                 arr (if (vector? arr) arr [arr])]
                             (recur xs
                                    (reduce (fn [command entry]
                                              (cond (vector? entry)
-                                                   (access/apply-with-coercion ele (cons command entry))
+                                                   (apply-with-coercion ele (cons command entry))
 
-                                                   :else (access/apply-with-coercion ele [command entry])))
+                                                   :else (apply-with-coercion ele [command entry])))
                                            command arr)))))
               (throw (Exception. (str "Option " slug " is not avaliable: " (-> options keys sort)))))))))
 

@@ -127,7 +127,7 @@
       (git :stash :create)
       (spit "/tmp/gita-example/hello.txt" "hello foo")
       (git :stash :create))
-
+  
   (git :stash :list)
   (count (git :log))
 

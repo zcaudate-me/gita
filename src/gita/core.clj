@@ -63,13 +63,12 @@
          [dir [c & cs :as args]] (cond (keyword? dir?)
                                        [(or *dir* curr)
                                         (cons dir? args)]
-
-                                       
                                        
                                        :else
                                        [(do (alter-var-root #'*dir* (fn [x] dir?))
                                             dir?)
                                         args])]
+     (println "ARGS:" dir args)
      (cond (= :help c)
            (git-help all-commands)
 

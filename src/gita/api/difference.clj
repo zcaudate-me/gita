@@ -114,7 +114,7 @@
 (defn list-file-changes
   [^Repository repo old new]
   (->> (git-diff repo old new)
-       (map (fn [entry]
+       (map (fn [^DiffEntry entry]
               {:path (.getNewPath entry) :type (enum->keyword (.getChangeType entry))}))
        (filter (fn [{:keys [type]}] (#{:add :modify :copy} type)))))
 
